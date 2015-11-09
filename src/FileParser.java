@@ -1,3 +1,5 @@
+import javafx.util.Pair;
+
 import java.io.*;
 import java.nio.charset.Charset;
 
@@ -36,20 +38,24 @@ public class FileParser {
                         state = 7;
                     } else if (currentData.contains("Pair:")) {
                         state = 8;
-                    } else if (currentData.contains("Partial assignments:")){
+                    } else if (currentData.contains("Partial assignments:")) {
                         state = 9;
                     } else if (state == 1) { //Reading class slots
-                        getNextSlot(currentData); //will assign to a slot superclass
-                        //will get implemented to then create a classSlot
+                        Slot slot = getNextSlot(currentData);
+                        slot.setIsCourse(true);
+                        //add to list of all slots
                     } else if (state == 2) {
-                        getNextSlot(currentData); //will assign to a slot superclass
-                        //will get implemented to then create a labSlot
+                        Slot slot = getNextSlot(currentData); //will assign to a slot superclass
+                        slot.setIsCourse(false);
+                        //add to list of all slots
                     } else if (state == 3) {
-                        getNextCourse(currentData); //add to set of all courses
+                        Course course = getNextCourse(currentData); //add to set of all courses
+                        //add to set of all courses
                     } else if (state == 4) {
-                        getNextLab(currentData); //add to set of all labs
+                        Lab lab = getNextLab(currentData); //add to set of all labs
                     } else if (state == 5) {
-                        getNotCompatible(currentData);
+                        Pair pair = getNotCompatible(currentData);
+                        //add to set of not compatibles
                     } else if (state == 6) {
                         getNextUnwanted(currentData);
                     } else if (state == 7) {
@@ -64,7 +70,7 @@ public class FileParser {
         }
     }
 
-    private void getNextSlot(String currentData) { //this will get changed to return a slot
+    private Slot getNextSlot(String currentData) { //this will get changed to return a slot
         String day, time, max, min;
         startIndex = 0;
         endIndex = 0;
@@ -74,10 +80,13 @@ public class FileParser {
         time = getNextString(',', currentData, false).trim();
         max = getNextString(',', currentData, false).trim();
         min = getNextString(',', currentData, true).trim();
-        //set up slot super class
+
+        Slot slot = new Slot(day, time, Integer.parseInt(max), Integer.parseInt(min));
+
+        return slot;
     }
 
-    private void getNextCourse(String currentData) { //will return course
+    private Course getNextCourse(String currentData) { //will return course
         String department, classNum, lecSection;
         startIndex = 0;
         endIndex = 0;
@@ -88,55 +97,83 @@ public class FileParser {
         classNum = getNextString(' ', currentData, false).trim();
         getNextString(' ', currentData, false); // ignores LEC
         lecSection = getNextString(' ', currentData, true).trim();
-        //setup Course
+
+        Course course = new Course(department, Integer.parseInt(classNum), lecSection);
+        return course;
     }
 
-    private void getNextLab(String currentData) { //will return lab
+    private Lab getNextLab(String currentData) { //will return lab
         String department, classNum, lecSection, tutorialSection;
         startIndex = 0;
         endIndex = 0;
+        lecSection = "";
 
         endIndex = currentData.indexOf(' ');
         department = currentData.substring(startIndex, endIndex).trim();
 
         classNum = getNextString(' ', currentData, false).trim();
-        if(currentData.contains("LEC")) {
+        if (currentData.contains("LEC")) {
             getNextString(' ', currentData, false); // ignores LEC
             lecSection = getNextString(' ', currentData, false).trim();
         }
         getNextString(' ', currentData, false); // ignores TUT
         tutorialSection = getNextString(' ', currentData, true).trim();
-        //setup Lab
+
+        lecSection = (lecSection.isEmpty()) ? "01" : lecSection; //if lecSection isn't set make it 01
+        Lab lab = new Lab(department, Integer.parseInt(classNum), lecSection, tutorialSection);
+        return lab;
     }
 
-    private void getNotCompatible(String currentData) {
+    private Pair<Course, Course> getNotCompatible(String currentData) {
         String firstHalf, secondHalf;
         int splitPoint;
+        Lab firstLab = null;
+        Lab secondLab = null;
+        Course firstCourse = null;
+        Course secondCourse = null;
+        Pair<Course, Course> pair;
 
         splitPoint = currentData.indexOf(',');
         firstHalf = currentData.substring(0, splitPoint).trim();
         secondHalf = currentData.substring(splitPoint + 2, currentData.length()).trim();
 
         if (firstHalf.contains("TUT")) {
-            getNextLab(firstHalf);
+            firstLab = getNextLab(firstHalf);
         } else {
-            getNextCourse(firstHalf);
+            firstCourse = getNextCourse(firstHalf);
         }
-        if (secondHalf.contains("TUT")){
-            getNextLab(secondHalf);
+        if (secondHalf.contains("TUT")) {
+            secondLab = getNextLab(secondHalf);
         } else {
-            getNextCourse(secondHalf);
+            secondCourse = getNextCourse(secondHalf);
         }
+        if (firstCourse == null){
+            if(secondCourse == null){
+                pair = new Pair<>(firstLab, secondLab);
+            } else {
+                pair = new Pair<>(firstLab, secondCourse);
+            }
+        } else {
+            if (secondCourse == null){
+                pair = new Pair<>(firstCourse, secondLab);
+            } else {
+                pair = new Pair<>(firstCourse, secondCourse);
+            }
+        }
+        return pair;
     }
 
-    private void getNextUnwanted(String currentData) {
+    private Pair<Course, Pair<String, String>> getNextUnwanted(String currentData) {
         String firstHalf, secondHalf, day, time;
         int splitPoint;
+        Course course;
+        Pair<Course, Pair<String, String>> courseDayTimePair;
+        Pair<String, String> dayTimePair;
 
         splitPoint = currentData.indexOf(',');
         firstHalf = currentData.substring(0, splitPoint).trim();
 
-        getNextCourse(firstHalf);
+        course = getNextCourse(firstHalf);
 
         startIndex = 0;
         endIndex = 0;
@@ -144,8 +181,11 @@ public class FileParser {
         endIndex = currentData.indexOf(',');
         day = currentData.substring(startIndex, endIndex).trim();
         time = currentData.substring(endIndex + 1, currentData.length()).trim();
-        //used day/time combo to get instance of slot already created
-        //add to multimap
+
+        dayTimePair = new Pair<>(day, time);
+        courseDayTimePair = new Pair<>(course, dayTimePair);
+
+        return courseDayTimePair;
     }
 
     private void getNextPreferences(String currentData) {
