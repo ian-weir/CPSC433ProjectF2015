@@ -2,11 +2,13 @@ import javafx.util.Pair;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.Set;
 
 public class FileParser {
     private int startIndex = 0;
     private int endIndex = 0;
-
+    private Set allCourses;
+    private Set allLabs;
     public FileParser() {
     }
 
