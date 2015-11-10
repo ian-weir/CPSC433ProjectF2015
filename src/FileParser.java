@@ -2,14 +2,18 @@ import javafx.util.Pair;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.HashSet;
 import java.util.Set;
 
 public class FileParser {
     private int startIndex = 0;
     private int endIndex = 0;
-    private Set allCourses;
+    private Set<Course> allCourses;
     private Set allLabs;
+
     public FileParser() {
+        allCourses = new HashSet<>();
+        allLabs = new HashSet<>();
     }
 
     public void setupData(String filename) { //This will get changed to return all our data set up
@@ -190,11 +194,14 @@ public class FileParser {
         return courseDayTimePair;
     }
 
-    private void getNextPreferences(String currentData) {
+    private Pair<Course, Pair<Pair<String, String>, Integer>> getNextPreferences(String currentData) {
         String day, time, weight, courseSplit;
         int splitPoint;
         startIndex = 0;
         endIndex = 0;
+        Pair<Course, Pair<Pair<String, String>,Integer>> coursePair;
+        Pair<String, String> slot;
+        Pair<Pair<String, String>, Integer> slotWeight;
 
         endIndex = currentData.indexOf(',');
         day = currentData.substring(startIndex, endIndex).trim();
@@ -202,13 +209,20 @@ public class FileParser {
         splitPoint = currentData.indexOf(',', endIndex + 1);
         courseSplit = currentData.substring(endIndex + 1, splitPoint).trim();
 
+        slot = new Pair<>(day, time);
         if (courseSplit.contains("TUT")) {
-            getNextLab(courseSplit);
+           Lab lab = getNextLab(courseSplit);
+            weight = getNextString(',', currentData, true).trim();
+            slotWeight = new Pair<>(slot, Integer.parseInt(weight));
+            coursePair = new Pair<>(lab,slotWeight);
         } else {
-            getNextCourse(courseSplit);
+            Course course = getNextCourse(courseSplit);
+            weight = getNextString(',', currentData, true).trim();
+            slotWeight = new Pair<>(slot, Integer.parseInt(weight));
+            coursePair = new Pair<>(course,slotWeight);
         }
-        weight = getNextString(',', currentData, true).trim();
-        //add to multimap
+
+        return coursePair;
     }
 
     private String getNextString(char seperator, String currentData, boolean isLastString) {
