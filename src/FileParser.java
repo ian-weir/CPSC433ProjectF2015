@@ -2,18 +2,33 @@ import javafx.util.Pair;
 
 import java.io.*;
 import java.nio.charset.Charset;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class FileParser {
     private int startIndex = 0;
     private int endIndex = 0;
     private Set<Course> allCourses;
-    private Set allLabs;
+    private Set<Lab> allLabs; //use Day/Time Pair to get the slot
+    private Map<Pair<String, String>, Slot> allSlots;
+    private Map<Course, Course> notCompatible;
+    private Map<Course, Slot> unwanted;
+    private Map<Course, Pair<Slot, Integer>> preferences;
+    private Map<Course, Course> pairs;
+    private Map<Course, Slot> partialAssignment;
+
 
     public FileParser() {
         allCourses = new HashSet<>();
         allLabs = new HashSet<>();
+        allSlots = new HashMap<>();
+        notCompatible = new HashMap<>();
+        unwanted = new HashMap<>();
+        preferences = new HashMap<>();
+        pairs = new HashMap<>();
+        partialAssignment = new HashMap<>();
     }
 
     public void setupData(String filename) { //This will get changed to return all our data set up
