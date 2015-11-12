@@ -15,7 +15,7 @@ public class FileParser {
     private Map<Pair<String, String>, Slot> allSlots;
     private Map<Course, Course> notCompatible;
     private Map<Course, Slot> unwanted;
-    private Map<Course, Pair<Slot, Integer>> preferences;
+    private Map<Course, Preference> preferences;
     private Map<Course, Course> pairs;
     private Map<Course, Slot> partialAssignment;
 
@@ -35,6 +35,10 @@ public class FileParser {
         String currentData;
         InputStreamReader fileReader;
         int state = 0;
+        Pair<String, String> slotID;
+        Slot slot;
+        Preference preference;
+        Pair<Course, Course> twoCoursePair;
 
         try {
             InputStream file = new FileInputStream(filename);
@@ -62,27 +66,38 @@ public class FileParser {
                     } else if (currentData.contains("Partial assignments:")) {
                         state = 9;
                     } else if (state == 1) { //Reading class slots
-                        Slot slot = getNextSlot(currentData);
+                        slot = getNextSlot(currentData);
                         slot.setIsCourse(true);
+                        slotID = new Pair<>(slot.getDay(), slot.getTime());
+                        allSlots.put(slotID, slot);
                         //add to list of all slots
                     } else if (state == 2) {
-                        Slot slot = getNextSlot(currentData); //will assign to a slot superclass
+                        slot = getNextSlot(currentData);
                         slot.setIsCourse(false);
+                        slotID = new Pair<>(slot.getDay(), slot.getTime());
+                        allSlots.put(slotID, slot);
                         //add to list of all slots
                     } else if (state == 3) {
-                        Course course = getNextCourse(currentData); //add to set of all courses
+                        Course course = getNextCourse(currentData);
+                        allCourses.add(course);
                         //add to set of all courses
                     } else if (state == 4) {
                         Lab lab = getNextLab(currentData); //add to set of all labs
+                        allLabs.add(lab);
                     } else if (state == 5) {
-                        Pair pair = getNotCompatible(currentData);
+                        twoCoursePair = getNotCompatible(currentData);
+                        notCompatible.put(twoCoursePair.getKey(), twoCoursePair.getValue());
                         //add to set of not compatibles
                     } else if (state == 6) {
-                        getNextUnwanted(currentData);
+                        Pair<Course, Pair<String, String>> coursePair = getNextUnwanted(currentData);
+                        slot = allSlots.get(coursePair.getValue());
+                        unwanted.put(coursePair.getKey(), slot);
                     } else if (state == 7) {
-                        getNextPreferences(currentData);
+                        preference = getNextPreferences(currentData);
+                        preferences.put(preference.getCourse(), preference);
                     } else if (state == 8) {
-                        getNotCompatible(currentData);
+                        twoCoursePair = getNotCompatible(currentData); // using getNotCompatible because it parses the same way
+                        pairs.put(twoCoursePair.getKey(), twoCoursePair.getValue());
                     }
                 }
             }
@@ -168,14 +183,14 @@ public class FileParser {
         } else {
             secondCourse = getNextCourse(secondHalf);
         }
-        if (firstCourse == null){
-            if(secondCourse == null){
+        if (firstCourse == null) {
+            if (secondCourse == null) {
                 pair = new Pair<>(firstLab, secondLab);
             } else {
                 pair = new Pair<>(firstLab, secondCourse);
             }
         } else {
-            if (secondCourse == null){
+            if (secondCourse == null) {
                 pair = new Pair<>(firstCourse, secondLab);
             } else {
                 pair = new Pair<>(firstCourse, secondCourse);
@@ -209,14 +224,13 @@ public class FileParser {
         return courseDayTimePair;
     }
 
-    private Pair<Course, Pair<Pair<String, String>, Integer>> getNextPreferences(String currentData) {
+    private Preference getNextPreferences(String currentData) {
         String day, time, weight, courseSplit;
         int splitPoint;
         startIndex = 0;
         endIndex = 0;
-        Pair<Course, Pair<Pair<String, String>,Integer>> coursePair;
         Pair<String, String> slot;
-        Pair<Pair<String, String>, Integer> slotWeight;
+        Preference preference;
 
         endIndex = currentData.indexOf(',');
         day = currentData.substring(startIndex, endIndex).trim();
@@ -226,18 +240,16 @@ public class FileParser {
 
         slot = new Pair<>(day, time);
         if (courseSplit.contains("TUT")) {
-           Lab lab = getNextLab(courseSplit);
+            Lab lab = getNextLab(courseSplit);
             weight = getNextString(',', currentData, true).trim();
-            slotWeight = new Pair<>(slot, Integer.parseInt(weight));
-            coursePair = new Pair<>(lab,slotWeight);
+            preference = new Preference(lab, slot, Integer.parseInt(weight));
         } else {
             Course course = getNextCourse(courseSplit);
             weight = getNextString(',', currentData, true).trim();
-            slotWeight = new Pair<>(slot, Integer.parseInt(weight));
-            coursePair = new Pair<>(course,slotWeight);
+            preference = new Preference(course, slot, Integer.parseInt(weight));
         }
 
-        return coursePair;
+        return preference;
     }
 
     private String getNextString(char seperator, String currentData, boolean isLastString) {
