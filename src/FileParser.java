@@ -2,33 +2,32 @@ import javafx.util.Pair;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class FileParser {
     private int startIndex = 0;
     private int endIndex = 0;
-    private Set<Course> allCourses;
-    private Set<Lab> allLabs; //use Day/Time Pair to get the slot
-    private Map<Pair<String, String>, Slot> allSlots;
-    private Map<Course, Course> notCompatible;
+    private List<Course> allCourses;
+    private List<Lab> allLabs; //use Day/Time Pair to get the slot
+    private Map<Pair<String, String>, Slot> courseSlots;
+    private Map<Pair<String, String>, Slot> labSlots;
+    private Map<Course, List<Course>> notCompatible;
     private Map<Course, Slot> unwanted;
     private Map<Course, Preference> preferences;
     private Map<Course, Course> pairs;
-    private Map<Course, Slot> partialAssignment;
+    private Map<Course, Slot> partialAssignments;
 
 
     public FileParser() {
-        allCourses = new HashSet<>();
-        allLabs = new HashSet<>();
-        allSlots = new HashMap<>();
+        allCourses = new ArrayList<>();
+        allLabs = new ArrayList<>();
+        courseSlots = new HashMap<>();
+        labSlots = new HashMap<>();
         notCompatible = new HashMap<>();
         unwanted = new HashMap<>();
         preferences = new HashMap<>();
         pairs = new HashMap<>();
-        partialAssignment = new HashMap<>();
+        partialAssignments = new HashMap<>();
     }
 
     public void setupData(String filename) { //This will get changed to return all our data set up
@@ -39,6 +38,7 @@ public class FileParser {
         Slot slot;
         Preference preference;
         Pair<Course, Course> twoCoursePair;
+        Pair<Course, Pair<String, String>> coursePair;
 
         try {
             InputStream file = new FileInputStream(filename);
@@ -69,28 +69,36 @@ public class FileParser {
                         slot = getNextSlot(currentData);
                         slot.setIsCourse(true);
                         slotID = new Pair<>(slot.getDay(), slot.getTime());
-                        allSlots.put(slotID, slot);
-                        //add to list of all slots
+                        courseSlots.put(slotID, slot);
                     } else if (state == 2) {
                         slot = getNextSlot(currentData);
                         slot.setIsCourse(false);
                         slotID = new Pair<>(slot.getDay(), slot.getTime());
-                        allSlots.put(slotID, slot);
-                        //add to list of all slots
+                        labSlots.put(slotID, slot);
                     } else if (state == 3) {
                         Course course = getNextCourse(currentData);
                         allCourses.add(course);
-                        //add to set of all courses
                     } else if (state == 4) {
                         Lab lab = getNextLab(currentData); //add to set of all labs
                         allLabs.add(lab);
                     } else if (state == 5) {
+                        List<Course> courseList = new ArrayList<>();
                         twoCoursePair = getNotCompatible(currentData);
-                        notCompatible.put(twoCoursePair.getKey(), twoCoursePair.getValue());
-                        //add to set of not compatibles
+                        if (notCompatible.containsKey(twoCoursePair.getKey())) {
+                            notCompatible.get(twoCoursePair.getKey()).add(twoCoursePair.getValue());
+                        } else {
+                            courseList.add(twoCoursePair.getValue());
+                            notCompatible.put(twoCoursePair.getKey(), courseList);
+                        }
+                        if (notCompatible.containsKey(twoCoursePair.getValue())) {
+                            notCompatible.get(twoCoursePair.getValue()).add(twoCoursePair.getKey());
+                        } else {
+                            courseList.add(twoCoursePair.getKey());
+                            notCompatible.put(twoCoursePair.getValue(), courseList);
+                        }
                     } else if (state == 6) {
-                        Pair<Course, Pair<String, String>> coursePair = getNextUnwanted(currentData);
-                        slot = allSlots.get(coursePair.getValue());
+                        coursePair = getNextUnwanted(currentData);
+                        slot = getCorrectSlotType(coursePair);
                         unwanted.put(coursePair.getKey(), slot);
                     } else if (state == 7) {
                         preference = getNextPreferences(currentData);
@@ -98,12 +106,40 @@ public class FileParser {
                     } else if (state == 8) {
                         twoCoursePair = getNotCompatible(currentData); // using getNotCompatible because it parses the same way
                         pairs.put(twoCoursePair.getKey(), twoCoursePair.getValue());
+                    } else if (state == 9) {
+                        coursePair = getNextUnwanted(currentData); //using getNextUnwanted because it parses the same way
+                        slot = getCorrectSlotType(coursePair);
+                        partialAssignments.put(coursePair.getKey(), slot);
                     }
                 }
             }
+            for (Pair<String, String> slotIDPair : courseSlots.keySet()) {
+                Slot slot1 = courseSlots.get(slotIDPair);
+                System.out.println(slot1.getDay() + " " + slot1.getTime() + " " + slot1.getMaxCapcity() + " " + slot1.getMinCapacity());
+            }
+            System.out.println();
+            for (Pair<String, String> slotIDPair : labSlots.keySet()) {
+                Slot slot1 = labSlots.get(slotIDPair);
+                System.out.println(slot1.getDay() + " " + slot1.getTime() + " " + slot1.getMaxCapcity() + " " + slot1.getMinCapacity());
+            }
+            System.out.println();
+            for (Course course : allCourses) {
+                System.out.println(course.getDepartment() + " " + course.getClassNum() + " " + course.getLecSection());
+            }
+            System.out.println();
+            for (Course course : notCompatible.keySet()) {
+                List<Course> courses = notCompatible.get(course);
+                for (Course course2 : courses) {
+                    System.out.println(course.getDepartment() + " " + course.getClassNum() + " " + course.getLecSection() + " " + course2.getDepartment() + " " + course2.getClassNum() + " " + course2.getLecSection());
+                }
+            }
+            System.out.println();
+
+
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 
     private Slot getNextSlot(String currentData) { //this will get changed to return a slot
@@ -134,8 +170,7 @@ public class FileParser {
         getNextString(' ', currentData, false); // ignores LEC
         lecSection = getNextString(' ', currentData, true).trim();
 
-        Course course = new Course(department, Integer.parseInt(classNum), lecSection);
-        return course;
+        return new Course(department, Integer.parseInt(classNum), lecSection);
     }
 
     private Lab getNextLab(String currentData) { //will return lab
@@ -156,8 +191,7 @@ public class FileParser {
         tutorialSection = getNextString(' ', currentData, true).trim();
 
         lecSection = (lecSection.isEmpty()) ? "01" : lecSection; //if lecSection isn't set make it 01
-        Lab lab = new Lab(department, Integer.parseInt(classNum), lecSection, tutorialSection);
-        return lab;
+        return new Lab(department, Integer.parseInt(classNum), lecSection, tutorialSection);
     }
 
     private Pair<Course, Course> getNotCompatible(String currentData) {
@@ -200,7 +234,7 @@ public class FileParser {
     }
 
     private Pair<Course, Pair<String, String>> getNextUnwanted(String currentData) {
-        String firstHalf, secondHalf, day, time;
+        String firstHalf, day, time;
         int splitPoint;
         Course course;
         Pair<Course, Pair<String, String>> courseDayTimePair;
@@ -260,4 +294,17 @@ public class FileParser {
         }
         return currentData.substring(startIndex + 1, endIndex);
     }
+
+    private Slot getCorrectSlotType(Pair<Course, Pair<String, String>> courseTimePair) {
+        Slot slot;
+
+        if (courseTimePair.getKey() instanceof Lab) {
+            slot = labSlots.get(courseTimePair.getValue());
+        } else {
+            slot = courseSlots.get(courseTimePair.getValue());
+        }
+        return slot;
+    }
+
+
 }

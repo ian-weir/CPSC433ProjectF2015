@@ -1,7 +1,7 @@
 public class Slot {
-    String day, time;
-    int maxCapcity, minCapacity;
-    boolean isCourse;
+    private String day, time;
+    private int maxCapcity, minCapacity;
+    private boolean isCourse;
 
     public Slot(String day, String time, int maxCapcity, int minCapacity){
         this.day = day;
