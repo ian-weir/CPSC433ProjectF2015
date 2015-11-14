@@ -47,6 +47,7 @@ public class FileParser {
             while ((currentData = lineReader.readLine()) != null) {
                 if (!currentData.isEmpty()) {
                     currentData = currentData.trim();
+                    currentData = removeExtraSpaces(currentData);
                     if (currentData.equals("Course slots:")) {
                         state = 1;
                     } else if (currentData.equals("Lab slots:")) {
@@ -134,8 +135,6 @@ public class FileParser {
                 }
             }
             System.out.println();
-
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -207,12 +206,12 @@ public class FileParser {
         firstHalf = currentData.substring(0, splitPoint).trim();
         secondHalf = currentData.substring(splitPoint + 2, currentData.length()).trim();
 
-        if (firstHalf.contains("TUT")) {
+        if (firstHalf.contains("TUT") || firstHalf.contains("LAB")) {
             firstLab = getNextLab(firstHalf);
         } else {
             firstCourse = getNextCourse(firstHalf);
         }
-        if (secondHalf.contains("TUT")) {
+        if (secondHalf.contains("TUT") || secondHalf.contains("LAB")) {
             secondLab = getNextLab(secondHalf);
         } else {
             secondCourse = getNextCourse(secondHalf);
@@ -273,7 +272,7 @@ public class FileParser {
         courseSplit = currentData.substring(endIndex + 1, splitPoint).trim();
 
         slot = new Pair<>(day, time);
-        if (courseSplit.contains("TUT")) {
+        if (courseSplit.contains("TUT") || courseSplit.contains("LAB")) {
             Lab lab = getNextLab(courseSplit);
             weight = getNextString(',', currentData, true).trim();
             preference = new Preference(lab, slot, Integer.parseInt(weight));
@@ -304,6 +303,18 @@ public class FileParser {
             slot = courseSlots.get(courseTimePair.getValue());
         }
         return slot;
+    }
+
+    private String removeExtraSpaces(String currentData){
+        StringBuilder stringBuilder = new StringBuilder(currentData);
+
+        for(int i = currentData.length()-1 ; i >= 0 ; i--){
+            if(currentData.charAt(i) == ' ' && currentData.charAt(i-1) == ' '){
+                stringBuilder.deleteCharAt(i);
+            }
+        }
+
+        return stringBuilder.toString();
     }
 
     public List<Course> getAllCourses() {
@@ -341,7 +352,5 @@ public class FileParser {
     public Map<Course, Slot> getPartialAssignments() {
         return partialAssignments;
     }
-
-
 
 }
