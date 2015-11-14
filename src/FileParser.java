@@ -306,5 +306,42 @@ public class FileParser {
         return slot;
     }
 
+    public List<Course> getAllCourses() {
+        return allCourses;
+    }
+
+    public List<Lab> getAllLabs() {
+        return allLabs;
+    }
+
+    public Map<Pair<String, String>, Slot> getCourseSlots() {
+        return courseSlots;
+    }
+
+    public Map<Pair<String, String>, Slot> getLabSlots() {
+        return labSlots;
+    }
+
+    public Map<Course, List<Course>> getNotCompatible() {
+        return notCompatible;
+    }
+
+    public Map<Course, Slot> getUnwanted() {
+        return unwanted;
+    }
+
+    public Map<Course, Preference> getPreferences() {
+        return preferences;
+    }
+
+    public Map<Course, Course> getPairs() {
+        return pairs;
+    }
+
+    public Map<Course, Slot> getPartialAssignments() {
+        return partialAssignments;
+    }
+
+
 
 }

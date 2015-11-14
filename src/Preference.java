@@ -1,16 +1,15 @@
 import javafx.util.Pair;
 
 public class Preference {
-    Course course;
-    Pair<String, String> slotId;
-    Integer weight;
+    private Course course;
+    private Pair<String, String> slotId;
+    private Integer weight;
 
     Preference(Course course, Pair<String, String> slotId, Integer weight){
         this.course = course;
         this.slotId = slotId;
         this.weight = weight;
     }
-
 
     public Course getCourse() {
         return course;
