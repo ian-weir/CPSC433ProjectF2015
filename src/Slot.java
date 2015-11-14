@@ -3,6 +3,8 @@ public class Slot {
     private int maxCapcity, minCapacity;
     private boolean isCourse;
 
+    private Course course;
+
     public Slot(String day, String time, int maxCapcity, int minCapacity){
         this.day = day;
         this.time = time;
@@ -34,4 +36,11 @@ public class Slot {
         this.isCourse = isCourse;
     }
 
+    public Course getCourse() {
+        return course;
+    }
+
+    public void setCourse(Course course) {
+        this.course = course;
+    }
 }

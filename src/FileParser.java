@@ -114,6 +114,7 @@ public class FileParser {
                     }
                 }
             }
+            //Printing data is just for testing, this can be removed
             for (Pair<String, String> slotIDPair : courseSlots.keySet()) {
                 Slot slot1 = courseSlots.get(slotIDPair);
                 System.out.println(slot1.getDay() + " " + slot1.getTime() + " " + slot1.getMaxCapcity() + " " + slot1.getMinCapacity());
@@ -131,7 +132,15 @@ public class FileParser {
             for (Course course : notCompatible.keySet()) {
                 List<Course> courses = notCompatible.get(course);
                 for (Course course2 : courses) {
-                    System.out.println(course.getDepartment() + " " + course.getClassNum() + " " + course.getLecSection() + " " + course2.getDepartment() + " " + course2.getClassNum() + " " + course2.getLecSection());
+                    System.out.print(course.getDepartment() + " " + course.getClassNum() + " " + course.getLecSection());
+                    if(course instanceof Lab){
+                        System.out.print(" " + ((Lab) course).getLabSection());
+                    }
+                    System.out.print(" " + course2.getDepartment() + " " + course2.getClassNum() + " " + course2.getLecSection());
+                    if(course2 instanceof Lab){
+                        System.out.print(" " + ((Lab) course2).getLabSection());
+                    }
+                    System.out.println();
                 }
             }
             System.out.println();
