@@ -18,7 +18,7 @@ public class SetBased {
         Fact bestFact = new Fact();
         List<Slot> newSchedule;
         int currentGeneration = 1;
-        int currentPopulation = 0;
+        int currentPopulation;
 
         for(currentPopulation = 0; currentPopulation < (populationMax * cullSize) ; currentPopulation++){
             newSchedule = orTree.initialize();
@@ -49,14 +49,24 @@ public class SetBased {
         return value;
     }
     private List<Slot> fSelect(){
-        int totalValue = 0;
+        int totalValue = findAllWeights();
+        int randomInt;
+        int lowerBound, upperBound;
+        lowerBound = 0;
+        List<Slot> selectedSchedule = new ArrayList<>();
 
-        for(Fact fact : facts){
-            totalValue+= fact.getValue();
+        Random randomGenerator = new Random();
+        randomInt = randomGenerator.nextInt(totalValue);
+
+        for(Fact fact: facts){
+            upperBound = lowerBound + fact.getSelectionChance();
+            if(randomInt > lowerBound && randomInt <= upperBound){
+                selectedSchedule = fact.getSchedule();
+                break;
+            }
+            lowerBound = upperBound;
         }
-        //Use RNG to get a number, mod by totalValue
-
-        return new ArrayList<>(); //change this once method is fully implemented
+        return selectedSchedule; //change this once method is fully implemented
     }
 
     private void cull(){
@@ -64,6 +74,20 @@ public class SetBased {
             //get lowest score
             //remove lowest scoring fact
         }
+    }
+
+    private int findAllWeights(){
+        int worstSchedule = 0;
+        int totalWeights = 0;
+
+        for(Fact fact: facts){
+            worstSchedule = (fact.getValue() > worstSchedule ? fact.getValue() : worstSchedule); //if fact has a higher value assign it to worstSchedule otherwise keep worstSchedule as is
+        }
+        for(Fact fact: facts){
+            fact.setSelectionChance(worstSchedule - fact.getValue());
+            totalWeights+=fact.getSelectionChance();
+        }
+        return totalWeights;
     }
 
 
