@@ -31,4 +31,42 @@ public class OrTreeNode {
     public void setSolvedToTrue(){
         solved = 1;
     }
+
+    public void altern(Course course){
+
+        Slot aSlot;
+        List<Slot> childSchedule;
+        OrTreeNode child = new OrTreeNode();
+
+        for(int index = 0; index <  schedule.size(); index++) {
+            aSlot = schedule.get(index);
+            if (aSlot.getCourse() == null)
+            {
+                childSchedule = createChild(index, course);
+                child.schedule = childSchedule;
+
+              children.add(children.size()-1,child);
+            }
+        }
+    }
+    private List<Slot> createChild(int index, Course course)
+    {
+        List<Slot> tempCopy = schedule;  // If 2 lists are chaning at same time this is the problem -> Ian's fault
+        Slot slotToAddTo = schedule.get(index);
+
+        if (course instanceof Lab)
+        {
+            slotToAddTo.setCourse(course);
+            slotToAddTo.setIsCourse(false);
+        }
+        else
+        {
+            slotToAddTo.setCourse(course);
+            slotToAddTo.setIsCourse(true);
+        }
+
+        tempCopy.remove(index);
+        tempCopy.add(index, slotToAddTo);
+        return tempCopy;
+    }
 }
