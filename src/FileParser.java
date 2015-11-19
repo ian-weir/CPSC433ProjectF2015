@@ -8,13 +8,13 @@ public class FileParser {
     private int startIndex = 0;
     private int endIndex = 0;
     private List<Course> allCourses;
-    private List<Lab> allLabs; //use Day/Time Pair to get the slot
-    private Map<Pair<String, String>, Slot> courseSlots;
-    private Map<Pair<String, String>, Slot> labSlots;
+    private List<Lab> allLabs;
+    private Map<Pair<String, String>, Slot> courseSlots; //use Day/Time Pair to get the slot
+    private Map<Pair<String, String>, Slot> labSlots; //use Day/Time Pair to get the slot
     private Map<Course, List<Course>> notCompatible;
-    private Map<Course, Slot> unwanted;
-    private Map<Course, Preference> preferences;
-    private Map<Course, Course> pairs;
+    private Map<Course, List<Slot>> unwanted;
+    private Map<Course, List<Preference>> preferences;
+    private Map<Course, List<Course>> pairs; //change to list
     private Map<Course, Slot> partialAssignments;
 
 
@@ -100,13 +100,38 @@ public class FileParser {
                     } else if (state == 6) {
                         coursePair = getNextUnwanted(currentData);
                         slot = getCorrectSlotType(coursePair);
-                        unwanted.put(coursePair.getKey(), slot);
+                        if (unwanted.containsKey(slot)) {
+                            unwanted.get(coursePair.getKey()).add(slot);
+                        } else {
+                            List<Slot> slotList = new ArrayList<>();
+                            slotList.add(slot);
+                            unwanted.put(coursePair.getKey(), slotList);
+                        }
                     } else if (state == 7) {
                         preference = getNextPreferences(currentData);
-                        preferences.put(preference.getCourse(), preference);
+
+                        if (preferences.containsKey(preference.getCourse())) {
+                            preferences.get(preference.getCourse()).add(preference);
+                        } else {
+                            List<Preference> preferenceList = new ArrayList<>();
+                            preferenceList.add(preference);
+                            preferences.put(preference.getCourse(), preferenceList);
+                        }
                     } else if (state == 8) {
                         twoCoursePair = getNotCompatible(currentData); // using getNotCompatible because it parses the same way
-                        pairs.put(twoCoursePair.getKey(), twoCoursePair.getValue());
+                        List<Course> courseList = new ArrayList<>();
+                        if (pairs.containsKey(twoCoursePair.getKey())) {
+                            pairs.get(twoCoursePair.getKey()).add(twoCoursePair.getValue());
+                        } else {
+                            courseList.add(twoCoursePair.getValue());
+                            pairs.put(twoCoursePair.getKey(), courseList);
+                        }
+                        if (pairs.containsKey(twoCoursePair.getValue())) {
+                            pairs.get(twoCoursePair.getValue()).add(twoCoursePair.getKey());
+                        } else {
+                            courseList.add(twoCoursePair.getKey());
+                            pairs.put(twoCoursePair.getValue(), courseList);
+                        }
                     } else if (state == 9) {
                         coursePair = getNextUnwanted(currentData); //using getNextUnwanted because it parses the same way
                         slot = getCorrectSlotType(coursePair);
@@ -196,7 +221,7 @@ public class FileParser {
         getNextString(' ', currentData, false); // ignores TUT
         tutorialSection = getNextString(' ', currentData, true).trim();
 
-        lecSection = (lecSection.isEmpty()) ? "01" : lecSection; //if lecSection isn't set make it 01
+        lecSection = (lecSection.isEmpty()) ? "404" : lecSection; //if lecSection isn't set make it 404
         return new Lab(department, Integer.parseInt(classNum), lecSection, tutorialSection);
     }
 
@@ -312,11 +337,11 @@ public class FileParser {
         return slot;
     }
 
-    private String removeExtraSpaces(String currentData){
+    private String removeExtraSpaces(String currentData) {
         StringBuilder stringBuilder = new StringBuilder(currentData);
 
-        for(int i = currentData.length()-1 ; i >= 0 ; i--){
-            if(currentData.charAt(i) == ' ' && currentData.charAt(i-1) == ' '){
+        for (int i = currentData.length() - 1; i >= 0; i--) {
+            if (currentData.charAt(i) == ' ' && currentData.charAt(i - 1) == ' ') {
                 stringBuilder.deleteCharAt(i);
             }
         }
@@ -344,15 +369,15 @@ public class FileParser {
         return notCompatible;
     }
 
-    public Map<Course, Slot> getUnwanted() {
+    public Map<Course, List<Slot>> getUnwanted() {
         return unwanted;
     }
 
-    public Map<Course, Preference> getPreferences() {
+    public Map<Course, List<Preference>> getPreferences() {
         return preferences;
     }
 
-    public Map<Course, Course> getPairs() {
+    public Map<Course, List<Course>> getPairs() {
         return pairs;
     }
 
