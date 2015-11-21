@@ -276,10 +276,9 @@ public class FileParser {
 
         course = getNextCourse(firstHalf);
 
-        startIndex = 0;
-        endIndex = 0;
+        startIndex = splitPoint + 1;
 
-        endIndex = currentData.indexOf(',');
+        endIndex = currentData.indexOf(',', startIndex);
         day = currentData.substring(startIndex, endIndex).trim();
         time = currentData.substring(endIndex + 1, currentData.length()).trim();
 
