@@ -14,7 +14,7 @@ public class FileParser {
     private Map<Course, List<Course>> notCompatible;
     private Map<Course, List<Slot>> unwanted;
     private Map<Course, List<Preference>> preferences;
-    private Map<Course, List<Course>> pairs; //change to list
+    private Map<Course, List<Course>> pairs;
     private Map<Course, Slot> partialAssignments;
 
 
@@ -100,7 +100,7 @@ public class FileParser {
                     } else if (state == 6) {
                         coursePair = getNextUnwanted(currentData);
                         slot = getCorrectSlotType(coursePair);
-                        if (unwanted.containsKey(slot)) {
+                        if (unwanted.containsKey(slot.getCourse())) {
                             unwanted.get(coursePair.getKey()).add(slot);
                         } else {
                             List<Slot> slotList = new ArrayList<>();
