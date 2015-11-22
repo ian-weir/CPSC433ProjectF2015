@@ -39,6 +39,8 @@ public class FileParser {
         Preference preference;
         Pair<Course, Course> twoCoursePair;
         Pair<Course, Pair<String, String>> coursePair;
+        Course properKey;
+        Course properValue;
 
         try {
             InputStream file = new FileInputStream(filename);
@@ -83,59 +85,66 @@ public class FileParser {
                         Lab lab = getNextLab(currentData); //add to set of all labs
                         allLabs.add(lab);
                     } else if (state == 5) {
-                        List<Course> courseList = new ArrayList<>();
                         twoCoursePair = getNotCompatible(currentData);
-                        if (notCompatible.containsKey(twoCoursePair.getKey())) {
-                            notCompatible.get(twoCoursePair.getKey()).add(twoCoursePair.getValue());
+                        properKey = getProperCourseElement(twoCoursePair.getKey());
+                        properValue = getProperCourseElement(twoCoursePair.getValue());
+                        if (notCompatible.containsKey(properKey)) {
+                            notCompatible.get(properKey).add(properValue);
                         } else {
-                            courseList.add(twoCoursePair.getValue());
-                            notCompatible.put(twoCoursePair.getKey(), courseList);
+                            List<Course> courseListOne = new ArrayList<>();
+                            courseListOne.add(properValue);
+                            notCompatible.put(properKey, courseListOne);
                         }
-                        if (notCompatible.containsKey(twoCoursePair.getValue())) {
-                            notCompatible.get(twoCoursePair.getValue()).add(twoCoursePair.getKey());
+                        if (notCompatible.containsKey(properValue)) {
+                            notCompatible.get(properValue).add(properKey);
                         } else {
-                            courseList.add(twoCoursePair.getKey());
-                            notCompatible.put(twoCoursePair.getValue(), courseList);
+                            List<Course> courseListTwo = new ArrayList<>();
+                            courseListTwo.add(properKey);
+                            notCompatible.put(properValue, courseListTwo);
                         }
                     } else if (state == 6) {
                         coursePair = getNextUnwanted(currentData);
                         slot = getCorrectSlotType(coursePair);
-                        if (unwanted.containsKey(slot.getCourse())) {
-                            unwanted.get(coursePair.getKey()).add(slot);
+                        properKey = getProperCourseElement(coursePair.getKey());
+                        if (unwanted.containsKey(properKey)) {
+                            unwanted.get(properKey).add(slot);
                         } else {
                             List<Slot> slotList = new ArrayList<>();
                             slotList.add(slot);
-                            unwanted.put(coursePair.getKey(), slotList);
+                            unwanted.put(properKey, slotList);
                         }
                     } else if (state == 7) {
                         preference = getNextPreferences(currentData);
-
-                        if (preferences.containsKey(preference.getCourse())) {
-                            preferences.get(preference.getCourse()).add(preference);
+                        properKey = getProperCourseElement(preference.getCourse());
+                        if (preferences.containsKey(properKey)) {
+                            preferences.get(properKey).add(preference);
                         } else {
                             List<Preference> preferenceList = new ArrayList<>();
                             preferenceList.add(preference);
-                            preferences.put(preference.getCourse(), preferenceList);
+                            preferences.put(properKey, preferenceList);
                         }
                     } else if (state == 8) {
                         twoCoursePair = getNotCompatible(currentData); // using getNotCompatible because it parses the same way
-                        List<Course> courseList = new ArrayList<>();
-                        if (pairs.containsKey(twoCoursePair.getKey())) {
-                            pairs.get(twoCoursePair.getKey()).add(twoCoursePair.getValue());
+                        properKey = getProperCourseElement(twoCoursePair.getKey());
+                        properValue = getProperCourseElement(twoCoursePair.getValue());
+                        if (pairs.containsKey(properKey)) {
+                            pairs.get(properKey).add(properValue);
                         } else {
-                            courseList.add(twoCoursePair.getValue());
-                            pairs.put(twoCoursePair.getKey(), courseList);
+                            List<Course> courseListOne = new ArrayList<>();
+                            courseListOne.add(properValue);
+                            pairs.put(properKey, courseListOne);
                         }
-                        if (pairs.containsKey(twoCoursePair.getValue())) {
-                            pairs.get(twoCoursePair.getValue()).add(twoCoursePair.getKey());
+                        if (pairs.containsKey(properValue)) {
+                            pairs.get(properValue).add(properKey);
                         } else {
-                            courseList.add(twoCoursePair.getKey());
-                            pairs.put(twoCoursePair.getValue(), courseList);
+                            List<Course> courseListTwo = new ArrayList<>();
+                            courseListTwo.add(properKey);
+                            pairs.put(properValue, courseListTwo);
                         }
                     } else if (state == 9) {
                         coursePair = getNextUnwanted(currentData); //using getNextUnwanted because it parses the same way
                         slot = getCorrectSlotType(coursePair);
-                        partialAssignments.put(coursePair.getKey(), slot);
+                        partialAssignments.put(getProperCourseElement(coursePair.getKey()), slot);
                     }
                 }
             }
@@ -347,6 +356,35 @@ public class FileParser {
 
         return stringBuilder.toString();
     }
+
+    private Course getProperCourseElement(Course course) {
+        Course properCourse = null;
+
+        if (course instanceof Lab) {
+            for (Lab lab : allLabs) {
+                if (course.getDepartment().equals(lab.getDepartment()) &&
+                        course.getLecSection().equals(lab.getLecSection()) &&
+                        course.getClassNum() == lab.getClassNum() &&
+                        ((Lab) course).getLabSection().equals(lab.getLabSection())) {
+                    properCourse = lab;
+                    break;
+                }
+            }
+        } else {
+            for (Course course1 : allCourses) {
+                if (course.getDepartment().equals(course1.getDepartment()) &&
+                        course.getLecSection().equals(course1.getLecSection()) &&
+                        course.getClassNum() == course1.getClassNum()) {
+                    properCourse = course1;
+                    break;
+                }
+            }
+        }
+
+
+        return properCourse;
+    }
+
 
     public List<Course> getAllCourses() {
         return allCourses;
