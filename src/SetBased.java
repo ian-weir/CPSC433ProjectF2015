@@ -8,10 +8,19 @@ public class SetBased {
     private int populationMax = 20;
     private int maxGeneration = 20;
     private double cullSize = 0.66;
+    private int weightMinFilled, weightPref, weightPair, weightSecDiff;
+    private Eval eval = new Eval();
+    private FileParser fileParser;
 
-    SetBased() {
+
+    SetBased(int weightMinFilled, int weightPref, int weightPair, int weightSecDiff, FileParser fileParser) {
         facts = new ArrayList<>();
         orTree = new OrTree();
+        this.weightMinFilled = weightMinFilled;
+        this.weightPref = weightPref;
+        this.weightPair = weightPair;
+        this.weightSecDiff = weightSecDiff;
+        this.fileParser = fileParser;
     }
 
     private Fact runSearch(FileParser fileParser) {
@@ -25,7 +34,7 @@ public class SetBased {
             facts.add(new Fact(newSchedule, fWert(newSchedule)));
         }
 
-        while(currentGeneration < maxGeneration){
+        while(currentGeneration < maxGeneration && bestFact.getValue() != 0){
             if(currentPopulation == populationMax){
                 cull();
                 currentGeneration++;
@@ -42,9 +51,21 @@ public class SetBased {
         return bestFact;
     }
 
-    private int fWert(List<Slot> slot){
+    private int fWert(List<Slot> schedule){
         int value = 0;
 
+        if(weightMinFilled > 0){
+            value += eval.minFilled(schedule);
+        }
+        if(weightPref > 0){
+            value += eval.pref(schedule, fileParser.getPreferences(), fileParser.getCourseSlots(), fileParser.getCourseSlots());
+        }
+        if(weightPair > 0){
+            value += eval.pair(schedule, fileParser.getPairs());
+        }
+        if(weightSecDiff > 0){
+            value += eval.secDiff(schedule);
+        }
 
         return value;
     }
@@ -70,7 +91,7 @@ public class SetBased {
     }
 
     private void cull(){
-        while(facts.size() >= populationMax * cullSize){
+        while(facts.size() >= populationMax / cullSize){
             //get lowest score
             //remove lowest scoring fact
         }
