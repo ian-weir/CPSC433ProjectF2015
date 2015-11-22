@@ -283,8 +283,11 @@ public class FileParser {
         splitPoint = currentData.indexOf(',');
         firstHalf = currentData.substring(0, splitPoint).trim();
 
-        course = getNextCourse(firstHalf);
-
+        if(currentData.contains("TUT") || currentData.contains("LAB")){
+            course = getNextLab(firstHalf);
+        } else {
+            course = getNextCourse(firstHalf);
+        }
         startIndex = splitPoint + 1;
 
         endIndex = currentData.indexOf(',', startIndex);
