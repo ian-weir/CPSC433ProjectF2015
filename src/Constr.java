@@ -8,6 +8,10 @@ public class Constr {
 	private Map<Course, List<Slot>> unwanted; // changed slot to list of slots
 	private List<Course> allCourses;
 	private List<Lab> allLabs;
+	private List<Course> cpsc813notCompatibleList = new ArrayList<>();
+	private List<Course> cpsc913notCompatibleList = new ArrayList<>();
+	private boolean containsCPSC813 = false;
+	private boolean containsCPSC913 = false;
 	
     public Constr(Map<Course, List<Course>> notCompatible, Map<Course, Slot> partialAssignments, Map<Course,List<Slot>> unwanted,List<Course> allCourses,List<Lab> allLabs){
     	this.notCompatible = notCompatible;
@@ -15,6 +19,7 @@ public class Constr {
     	this.unwanted = unwanted;
     	this.allCourses = allCourses;
     	this.allLabs = allLabs;
+    	generateSpecialCourseList();
     }
     
     //returns true if assigning a slot(with class in it) to a schedule passes all the hard constraints
@@ -32,21 +37,26 @@ public class Constr {
     			;
     }
     
-    //hopefully this covers all the cases ....
 	//checks if two courses or labs overlap
 	private boolean overlap(Slot slot1, Slot slot2){
 		int time1 = Integer.parseInt(slot1.getTime().substring(0,slot1.getTime().indexOf(":")));
 		int time2 = Integer.parseInt(slot2.getTime().substring(0,slot2.getTime().indexOf(":")));
-		
 		if(slot1.getDay().equals("MO") && slot2.getDay().equals("MO")){
 			return time1 == time2;
 		}
 		if(slot1.getDay().equals("TU") && slot2.getDay().equals("TU")){
-			if(slot1.isCourse() == slot2.isCourse()){
-				return time1 == time2;
-			}
-			else{
-				return time2 == time1 || time2 == time1+1 || time1 == time2+1;
+			if(!(slot1.getCourse().getDepartment().equals("CPSC") && (slot1.getCourse().getClassNum() == 813 || slot1.getCourse().getClassNum() == 913))){
+				if(!(slot2.getCourse().getDepartment().equals("CPSC") && (slot2.getCourse().getClassNum() == 813 || slot2.getCourse().getClassNum() == 913))){
+					if(slot1.isCourse() == slot2.isCourse()){
+						return time1 == time2;
+					}
+					if(slot1.isCourse() && !slot2.isCourse()){
+						return time2 == time1 || time2 == time1+1;
+					}
+					if(!slot1.isCourse() && slot2.isCourse()){
+						return time1 == time2 || time1 == time2+1;
+					}
+				}
 			}
 		}
 		if(slot1.getDay().equals("FR") && slot2.getDay().equals("FR")){
@@ -65,63 +75,99 @@ public class Constr {
 		return false;
 	}
 	
-	//no more than course max or lab max can be assigned to a slot
-	private boolean classMax(List<Slot> schedule, Slot slot){
-		int max = slot.getMaxCapcity();
-		int current = 1;
-		for(Slot scheduleSlot : schedule){
-			if(slot.isCourse() == scheduleSlot.isCourse()){ //check if both courses are labs or tutorial
-				if(slot.getDay().equals(scheduleSlot.getDay())){	
-					if(slot.getTime().equals(scheduleSlot.getTime())){ 
-						current++;
+	//checks if two courses have identical information
+	private boolean courseEquals(Course course1, Course course2){
+		if(course1.getDepartment().equals(course2.getDepartment())){
+			if(course1.getClassNum() == course2.getClassNum()){
+				if(course1.getLecSection().equals(course2.getLecSection())){
+					if(course1 instanceof Lab && course2 instanceof Lab){
+						if(((Lab)course1).getLabSection().equals(((Lab)course2).getLabSection())){
+							return true;
+						}	
+					}
+					if(!(course1 instanceof Lab || course2 instanceof Lab)){
+						return true;
 					}
 				}
 			}
 		}
-		return current < max;
+		return false;
+	}
+	
+	//checks if two slots have identical information
+	private boolean slotEquals(Slot slot1, Slot slot2){
+		if(slot1.isCourse() == slot2.isCourse()){
+			if(slot1.getDay().equals(slot2.getDay())){
+				if(slot1.getTime().equals(slot2.getTime())){
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	//checks to see if a course is inside a course list
+	//if course is in course list return the version from the list else return null
+	private Course containsCourse(List<Course> courseList, Course course1){
+		for(Course course2 : courseList){
+			if(courseEquals(course1, course2)){
+				return course2;
+			}
+		}
+		return null;
+	}
+	
+	//no more than course max or lab max can be assigned to a slot
+	private boolean classMax(List<Slot> schedule, Slot slot){
+		int current = 1;
+		for(Slot scheduleSlot : schedule){
+			if(slotEquals(slot,scheduleSlot)){
+				current++;
+			}
+		}
+		if(current > slot.getMaxCapcity())
+			return false;
+		else
+			return true;
 	}
 	
 	//a course can not be assigned to the same slot as its labs
 	private boolean unequalAssignment(List<Slot> schedule, Slot slot){
-		Course scheduleCourse;
 		Course course = slot.getCourse();
 		for(Slot scheduleSlot : schedule){
-			if(slot.isCourse() != scheduleSlot.isCourse()){ //check that one is a lab/tut and the other is a lecture
-				scheduleCourse = scheduleSlot.getCourse();
-				if(course.getDepartment().equals(scheduleCourse.getDepartment())){ 
-					if(course.getClassNum() == scheduleCourse.getClassNum()){ 
-						if(course.getLecSection().equals(scheduleCourse.getLecSection())){ //check same lecture section
-							if(overlap(slot,scheduleSlot)){
+			Course scheduleCourse = scheduleSlot.getCourse();
+			if(slot.isCourse() != scheduleSlot.isCourse()){ //check that one is a lab/tutorial and the other is a lecture
+				if(course.getDepartment().equals(scheduleCourse.getDepartment())){
+					if(course.getClassNum() == scheduleCourse.getClassNum()){
+						if(overlap(slot, scheduleSlot)){
+							if(course.getLecSection().equals(scheduleCourse.getLecSection())){
 								return false;
 							}
-						}
-						if(slot.isCourse() && scheduleCourse.getLecSection().equals("404")){ //tutorial removed lecture section
-							if(overlap(slot,scheduleSlot)){
+							if(course.getLecSection().equals("404")){ //check if lab has no lecture section, lab is connected to all lecture sections
 								return false;
 							}
-						}
-						if(scheduleSlot.isCourse() && course.getLecSection().equals("404")){ //tutorial removed lecture section
-							if(overlap(slot,scheduleSlot)){
+							if(scheduleCourse.getLecSection().equals("404")){
 								return false;
 							}
 						}
 					}
 				}
-			}	
+			}
 		}
 		return true;
 	}
 	
 	//not compatible courses and labs should not be in the same slot
 	private boolean notCompatible(List<Slot> schedule, Slot slot){
-		Course course = slot.getCourse();
-		Course scheduleCourse;
-		if(notCompatible.containsKey(course)){ //this is bugged, only works some of the times?
-			List<Course> list = notCompatible.get(course);
+		List<Course> allKeys = new ArrayList<>();
+		allKeys.addAll(notCompatible.keySet());
+		Course courseKey = containsCourse(allKeys, slot.getCourse()); //changes the object into a usable key object for notCompatible
+		if(courseKey != null){
+			List<Course> notCompatibleList = notCompatible.get(courseKey);
 			for(Slot scheduleSlot : schedule){
-				if(overlap(slot, scheduleSlot)){
-					scheduleCourse = scheduleSlot.getCourse();
-					if(list.contains(scheduleCourse)){ //compare objects
+				if(overlap(scheduleSlot,slot)){
+					Course scheduleCourse = scheduleSlot.getCourse();
+					if(containsCourse(notCompatibleList, scheduleCourse) != null){
 						return false;
 					}
 				}
@@ -130,16 +176,15 @@ public class Constr {
 		return true;
 	}
 	
+	
 	//the partial assignment can not be changed
 	private boolean partialAssignment(Slot slot){
-		Slot partialSlot;
-		Course course = slot.getCourse();
-		if(partialAssignments.containsKey(course)){ //might be bugged
-			partialSlot = partialAssignments.get(course);
-			if(!slot.getDay().equals(partialSlot.getDay())){
-				return false;
-			}
-			if(!slot.getTime().equals(partialSlot.getTime())){
+		List<Course> allKeys = new ArrayList<>();
+		allKeys.addAll(partialAssignments.keySet());
+		Course courseKey = containsCourse(allKeys, slot.getCourse());
+		if(courseKey != null){
+			Slot partialSlot = partialAssignments.get(courseKey);
+			if(!slotEquals(slot, partialSlot)){
 				return false;
 			}
 		}
@@ -148,13 +193,14 @@ public class Constr {
 	
 	//courses can not be in unwanted time slots
 	private boolean unwanted(Slot slot){
-		if(unwanted.containsKey(slot.getCourse())){ //bugged
-			List<Slot> unwantedSlots = unwanted.get(slot.getCourse());
+		List<Course> allKeys = new ArrayList<>();
+		allKeys.addAll(unwanted.keySet());
+		Course courseKey = containsCourse(allKeys, slot.getCourse());
+		if(courseKey != null){
+			List<Slot> unwantedSlots = unwanted.get(courseKey);
 			for(Slot unwantedSlot : unwantedSlots){
-				if(slot.getDay().equals(unwantedSlot.getDay())){
-					if(slot.getTime().equals(unwantedSlot.getTime())){
-						return false;
-					}
+				if(slotEquals(slot,unwantedSlot)){
+					return false;
 				}
 			}
 		}
@@ -163,21 +209,16 @@ public class Constr {
 
 	//Department CPSC hard constraint
 	//lecture 9x courses must be in the evening (18:00 or later)
-	//not sure if this includes TU 17:00 - 18:30 which goes into the evening (did not include this)
-	//assuming only courses and not labs/tuts
+	//assuming only courses and not labs/tutorials
 	private boolean lec9Evening(Slot slot){
-		Course course;
-		String lec;
-		int lecNumber;
-		int time;
 		if(slot.isCourse()){
-			course = slot.getCourse();
+			Course course = slot.getCourse();
 			if(course.getDepartment().equals("CPSC")){ //is SENG classes apart of this department?
-				lec = course.getLecSection();
-			//	lecNumber = Integer.parseInt(lec.substring(lec.indexOf(" ")+1));
-				lecNumber = Integer.parseInt(lec);
+				String lec = course.getLecSection();
+			//	lecNumber = Integer.parseInt(lec.substring(lec.indexOf(" ")+1)); //this one checked for "LEC 9x"
+				int lecNumber = Integer.parseInt(lec);	// this one only checks for "9x"
 				if(lecNumber >= 90){
-					time = Integer.parseInt(slot.getTime().substring(0,slot.getTime().indexOf(":")));
+					int time = Integer.parseInt(slot.getTime().substring(0,slot.getTime().indexOf(":")));
 					if(time < 18){
 						return false;
 					}
@@ -192,19 +233,12 @@ public class Constr {
 	//500-level courses must be scheduled into different time slots
 	private boolean level500(List<Slot> schedule, Slot slot){
 		Course course = slot.getCourse();
-		Course scheduleCourse;
 		if(slot.isCourse() && course.getDepartment().equals("CPSC") && course.getClassNum() >= 500 && course.getClassNum() < 600){
 			for(Slot scheduleSlot : schedule){
-				scheduleCourse = scheduleSlot.getCourse();
-				if(scheduleCourse.getClassNum() >= 500 && scheduleCourse.getClassNum() < 600){
-					if(slot.getDay().equals(scheduleSlot.getDay())){
-						if(slot.getTime().equals(scheduleSlot.getTime())){
-							if(scheduleSlot.isCourse()){
-								if(scheduleCourse.getDepartment().equals("CPSC")){
-									return false;
-								}
-							}
-						}
+				Course scheduleCourse = scheduleSlot.getCourse();
+				if(scheduleSlot.isCourse() && scheduleCourse.getDepartment().equals("CPSC") && scheduleCourse.getClassNum() >= 500 && scheduleCourse.getClassNum() < 600){
+					if(slotEquals(slot, scheduleSlot)){
+						return false;	
 					}
 				}
 			}
@@ -213,60 +247,84 @@ public class Constr {
 	}
 	
 	//Department CPSC
-	//assume courses only and not labs/tuts
+	//assume courses only and not labs/tutorials
 	//no courses can be scheduled at Tuesdays 11:00 - 12:30, so 11:00
 	private boolean tuesday11(Slot slot){
-		if(slot.isCourse()){
-			if(slot.getDay().equals("TU") && slot.getTime().equals("11:00")){
-				if(slot.getCourse().getDepartment().equals("CPSC")){
-					return false;
-				}
-			}
+		if(slot.isCourse() && slot.getDay().equals("TU") && slot.getTime().equals("11:00") && slot.getCourse().getDepartment().equals("CPSC")){
+			return false;
 		}
 		return true;
 	}
 	
-	//cpsc813 and cpsc913 must be scheduled at tuesday/thursday 18:00-19:00
+	//checks if 813 or 913 courses exists first
+	//generates list of classes that can not overlap cpsc813 and cpsc913
+	private void generateSpecialCourseList(){
+		for(Course course: allCourses){
+			if(course.getDepartment().equals("CPSC") && course.getClassNum() == 813){
+				containsCPSC813 = true;
+			}
+			if(course.getDepartment().equals("CPSC") && course.getClassNum() == 913){
+				containsCPSC913 = true;
+			}
+		}
+		if(containsCPSC813 || containsCPSC913){
+			List<Course> cpsc313list = new ArrayList<>();
+			List<Course> cpsc413list = new ArrayList<>();
+			for(Course course : allCourses){
+				if(course.getClassNum() == 313){
+					cpsc313list.add(course);
+				}
+				if(course.getClassNum() == 413){
+					cpsc413list.add(course);
+				}
+			}
+			for(Lab lab : allLabs){
+				if(lab.getClassNum() == 313){
+					cpsc313list.add(lab);
+				}
+				if(lab.getClassNum() == 413){
+					cpsc413list.add(lab);
+				}
+			}
+			cpsc813notCompatibleList.addAll(cpsc313list);
+			cpsc913notCompatibleList.addAll(cpsc413list);
+			List<Course> notCompatibleKeys = new ArrayList<>();
+			notCompatibleKeys.addAll(notCompatible.keySet());
+			for(Course course : cpsc313list){
+				Course courseKey = containsCourse(notCompatibleKeys, course);
+				if(courseKey != null){
+					cpsc813notCompatibleList.addAll(notCompatible.get(courseKey));
+				}
+			}
+			for(Course course : cpsc413list){
+				Course courseKey = containsCourse(notCompatibleKeys, course);
+				if(courseKey != null){
+					cpsc913notCompatibleList.addAll(notCompatible.get(courseKey));
+				}
+			}
+		}
+	}
+	
+	//cpsc813 must be scheduled at tuesday/thursday 18:00-19:00
 	//cpsc813 can not overlap with courses and labs of cpsc313 -
 	//(and transitively with any other courses that are not allowed to overlap with cpsc313)
 	private boolean cpsc813(List<Slot> schedule, Slot slot){	
-		List<Course> cpsc813list;
-		List<Course> cpsc313list;
-		if(slot.getCourse().getClassNum() == 813 && slot.getCourse().getDepartment().equals("CPSC") && slot.isCourse()){
-			if(slot.getDay().equals("TU") && slot.getTime().equals("18:00")){
-				cpsc813list = new ArrayList<>();
-				cpsc313list = new ArrayList<>();
-				for(Course course : allCourses){
-					if(course.getClassNum() == 313 && course.getDepartment().equals("CPSC")){
-						cpsc313list.add(course);
-						cpsc813list.add(course);
-					}
-				}
-				for(int i = 0; i< allLabs.size(); i++){
-					if(allCourses.get(i).getClassNum() == 313 && allCourses.get(i).getDepartment().equals("CPSC")){ //Should this be allCourses or allLabs?
-						cpsc313list.add(allCourses.get(i));
-						cpsc813list.add(allCourses.get(i));
-					}
-				}
-				if(!cpsc313list.isEmpty()){
-					for(Course course : cpsc313list){
-						if(notCompatible.containsKey(course)){
-							cpsc813list.addAll(notCompatible.get(course));
-						}
-					}
-					for(Slot scheduleSlot : schedule){
-						if(cpsc813list.contains(scheduleSlot.getCourse())){
-							if(overlap(slot,scheduleSlot)){
-								if(scheduleSlot.getCourse() != slot.getCourse()){
-									return false;
-								}
-							}
-						}
-					}
+		if(containsCPSC813){
+			Course course = slot.getCourse();
+			if(course.getDepartment().equals("CPSC") && course.getClassNum() == 813){
+				if(!(slot.getDay().equals("TU") && slot.getTime().equals("18:00"))){
+					return false;
 				}
 			}
-			else{
-				return false;
+			else if(containsCourse(cpsc813notCompatibleList,course) != null){
+				if(slot.getDay().equals("TU")){
+					if(slot.getTime().equals("18:00") || slot.getTime().equals("18:30")){
+						return false;
+					}
+					if(slot.isCourse() && slot.getTime().equals("17:00")){ //lectures can overlap
+						return false;
+					}
+				}
 			}
 		}
 		return true;
@@ -276,43 +334,22 @@ public class Constr {
 	//cpsc913 can not overlap with courses and labs of cpsc413 -
 	//(and transitively with any other courses that are not allowed to overlap with cpsc413)
 	private boolean cpsc913(List<Slot> schedule, Slot slot){	
-		List<Course> cpsc913list;
-		List<Course> cpsc413list;
-		if(slot.getCourse().getClassNum() == 913 && slot.getCourse().getDepartment().equals("CPSC") && slot.isCourse()){
-			if(slot.getDay().equals("TU") && slot.getTime().equals("18:00")){
-				cpsc913list = new ArrayList<>();
-				cpsc413list = new ArrayList<>();
-				for(Course course : allCourses){
-					if(course.getClassNum() == 313 && course.getDepartment().equals("CPSC")){
-						cpsc413list.add(course);
-						cpsc913list.add(course);
-					}
-				}
-				for(int i = 0; i< allLabs.size(); i++){
-					if(allCourses.get(i).getClassNum() == 313 && allCourses.get(i).getDepartment().equals("CPSC")){ //should this be allLabs as well?
-						cpsc413list.add(allCourses.get(i));
-						cpsc913list.add(allCourses.get(i));
-					}
-				}
-				if(!cpsc413list.isEmpty()){
-					for(Course course : cpsc413list){
-						if(notCompatible.containsKey(course)){
-							cpsc913list.addAll(notCompatible.get(course));
-						}
-					}
-					for(Slot scheduleSlot : schedule){
-						if(cpsc913list.contains(scheduleSlot)){
-							if(overlap(slot,scheduleSlot)){
-								if(scheduleSlot.getCourse() != slot.getCourse()){
-									return false;
-								}
-							}
-						}
-					}
+		if(containsCPSC913){
+			Course course = slot.getCourse();
+			if(course.getDepartment().equals("CPSC") && course.getClassNum() == 913){
+				if(!(slot.getDay().equals("TU") && slot.getTime().equals("18:00"))){
+					return false;
 				}
 			}
-			else{
-				return false;
+			else if(containsCourse(cpsc913notCompatibleList,course) != null){
+				if(slot.getDay().equals("TU")){
+					if(slot.getTime().equals("18:00") || slot.getTime().equals("18:30")){ //tutorials 18-19 and lectures 18:30-20:00
+						return false;
+					}
+					if(slot.isCourse() && slot.getTime().equals("17:00")){ //check lectures for overlap 17:00-18:30
+						return false;
+					}
+				}
 			}
 		}
 		return true;
