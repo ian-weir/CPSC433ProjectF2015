@@ -55,16 +55,16 @@ public class SetBased {
         int value = 0;
 
         if(weightMinFilled > 0){
-            value += eval.minFilled(schedule);
+            value += weightMinFilled * eval.minFilled(schedule);
         }
         if(weightPref > 0){
-            value += eval.pref(schedule, fileParser.getPreferences(), fileParser.getCourseSlots(), fileParser.getCourseSlots());
+            value += weightPref * eval.pref(schedule, fileParser.getPreferences(), fileParser.getCourseSlots(), fileParser.getCourseSlots());
         }
         if(weightPair > 0){
-            value += eval.pair(schedule, fileParser.getPairs());
+            value += weightPair * eval.pair(schedule, fileParser.getPairs());
         }
         if(weightSecDiff > 0){
-            value += eval.secDiff(schedule);
+            value += weightSecDiff * eval.secDiff(schedule);
         }
 
         return value;
