@@ -2,6 +2,7 @@ public class Course {
     private String department, lecSection;
     private int classNum;
 
+
     public Course(String department, int classNum, String lecSection){
         this.department = department;
         this.classNum = classNum;

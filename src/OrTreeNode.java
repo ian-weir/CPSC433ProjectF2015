@@ -32,7 +32,7 @@ public class OrTreeNode {
         solved = 1;
     }
 
-    public void altern(Course course){
+    public void altern(Course course, boolean isGenetic){
 
         Slot aSlot;
         List<Slot> childSchedule;
@@ -46,6 +46,8 @@ public class OrTreeNode {
                 child.schedule = childSchedule;
 
               children.add(children.size()-1,child);
+              if(isGenetic)
+                  break;
             }
         }
     }
@@ -69,4 +71,5 @@ public class OrTreeNode {
         tempCopy.add(index, slotToAddTo);
         return tempCopy;
     }
+
 }

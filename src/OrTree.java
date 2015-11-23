@@ -37,7 +37,7 @@ public class OrTree {
             course_added = course.get(0);
             course.remove(0);
             for (int i = 0; i < head.getSchedule().size(); i++) {
-                head.altern(course_added);
+                head.altern(course_added, false);
             }
             //add to tree
         }
@@ -45,7 +45,7 @@ public class OrTree {
             lab_added = labs.get(0);
             labs.remove(0);
             for (int i = 0; i < head.getSchedule().size(); i++) {
-                head.altern(lab_added);
+                head.altern(lab_added, false);
             }
         }
         Random randomGenerator = new Random();
@@ -55,6 +55,33 @@ public class OrTree {
         solved = generateTree(head.getChildren().get(randomInt), course, labs, randomInt);
         return solved;
 
+    }
+
+    public List<Slot> converge(OrTreeNode head, List<Slot> schedule_1, List<Slot> schedule_2, int randomInt)
+    {
+        if(schedule_1.size() == 0)
+            return head.getSchedule();
+
+        if(schedule_1.get(0).equals(schedule_2.get(0)))
+        {
+            head.altern(schedule_1.get(0).getCourse(), true);
+            schedule_1.remove(0);
+            schedule_2.remove(0);
+        }
+        else{
+            Random randomGenerator = new Random();
+            randomInt = randomGenerator.nextInt(randomInt);
+            randomInt = randomInt % 2;
+
+            if(randomInt == 1)
+                head.altern(schedule_1.get(0).getCourse(), true);
+            else
+                head.altern(schedule_2.get(0).getCourse(),true);
+
+            schedule_1.remove(0);
+            schedule_2.remove(0);
+        }
+        return converge(head.getChildren().get(0), schedule_1, schedule_2, randomInt);
     }
 
 
