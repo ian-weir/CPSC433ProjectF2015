@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrTreeNode {
@@ -37,15 +38,17 @@ public class OrTreeNode {
         Slot aSlot;
         List<Slot> childSchedule;
         OrTreeNode child = new OrTreeNode();
+        children = new ArrayList<OrTreeNode>();
 
         for(int index = 0; index <  schedule.size(); index++) {
+          //  System.out.println("Sched Size: " + schedule.size());
             aSlot = schedule.get(index);
             if (aSlot.getCourse() == null)
             {
                 childSchedule = createChild(index, course);
                 child.schedule = childSchedule;
 
-              children.add(children.size()-1,child);
+              children.add(children.size(),child);
               if(isGenetic)
                   break;
             }
