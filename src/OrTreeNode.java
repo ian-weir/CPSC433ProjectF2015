@@ -38,7 +38,7 @@ public class OrTreeNode {
         Slot aSlot;
         List<Slot> childSchedule;
         OrTreeNode child = new OrTreeNode();
-        children = new ArrayList<OrTreeNode>();
+        children = new ArrayList<>();
 
         for(int index = 0; index <  schedule.size(); index++) {
           //  System.out.println("Sched Size: " + schedule.size());
@@ -56,8 +56,8 @@ public class OrTreeNode {
     }
     private List<Slot> createChild(int index, Course course)
     {
-        List<Slot> tempCopy = schedule;  // If 2 lists are chaning at same time this is the problem -> Ian's fault
-        Slot slotToAddTo = schedule.get(index);
+        List<Slot> tempCopy = deepCopy();  // If 2 lists are chaning at same time this is the problem -> Ian's fault
+        Slot slotToAddTo = tempCopy.get(index);
 
         if (course instanceof Lab)
         {
@@ -74,5 +74,16 @@ public class OrTreeNode {
         tempCopy.add(index, slotToAddTo);
         return tempCopy;
     }
+
+    private List<Slot> deepCopy(){
+        List<Slot> newList = new ArrayList<>();
+
+        for(Slot slot : schedule){
+            newList.add(new Slot(slot));
+        }
+
+        return newList;
+    }
+
 
 }

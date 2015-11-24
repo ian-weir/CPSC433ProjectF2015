@@ -5,12 +5,21 @@ public class Slot {
 
     private Course course;
 
-    public Slot(String day, String time, int maxCapcity, int minCapacity){
+    public Slot(String day, String time, int maxCapcity, int minCapacity) {
         this.day = day;
         this.time = time;
         this.maxCapcity = maxCapcity;
         this.minCapacity = minCapacity;
     }
+
+    public Slot(Slot slot) {
+        day = slot.getDay();
+        time = slot.getTime();
+        maxCapcity = slot.getMaxCapcity();
+        minCapacity = slot.getMinCapacity();
+        isCourse = slot.isCourse();
+    }
+
 
     public String getDay() {
         return day;
