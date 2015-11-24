@@ -9,7 +9,7 @@ import java.util.Comparator;
 public class Output{
 	
 	public void output(List<Slot> sched, int eval){
-	/*	List<Slot> sched = new ArrayList<Slot>();
+/*		List<Slot> sched = new ArrayList<Slot>();
 		Course c;
 		Slot s;
 		Lab l;
@@ -60,14 +60,14 @@ public class Output{
 		System.out.println("Eval-value: " + eval);
 		for(Slot slot : sched){
 			Course course = slot.getCourse();
-			System.out.print(course.getDepartment() + " "+ course.getClassNum() + " ");
+			System.out.print(course.getDepartment() + " "+ course.getClassNum());
 			if(!course.getLecSection().equals("404")){
-				System.out.print("LEC " + course.getLecSection());
+				System.out.print(" LEC " + course.getLecSection());
 			}
 			if(slot.getCourse() instanceof Lab){
-				System.out.print("LAB " + ((Lab)course).getLabSection() + "       ");
+				System.out.print(" LAB " + ((Lab)course).getLabSection() + "      ");
 				if(course.getLecSection().equals("404")){
-					System.out.print("      ");
+					System.out.print("       ");
 				}
 			}
 			else{
