@@ -7,29 +7,29 @@ public class OrTree {
 
     private List<Slot> solution;
 
-    public List<Slot> initialize(){
+    public List<Slot> initialize() {
         return crossover(null, null);
     }
 
-    public List<Slot> crossover(List<Slot> parentOne, List<Slot> parentTwo){
+    public List<Slot> crossover(List<Slot> parentOne, List<Slot> parentTwo) {
         List<Slot> newFact = new ArrayList<>();
 
 
         return newFact;
     }
 
-    public List<Slot> getSolution(){
+    public List<Slot> getSolution() {
         return solution;
     }
 
-    public void run()
-    {
-        List<Course> courses = new ArrayList<Course>();;
-        Course class1 = new Course("CPSC",413, "L01");
-        Course class2 = new Course("CPSC",511, "L01");
-        Course class3 = new Course("CPSC",201, "L01");
-        Course class4 = new Course("CPSC",109, "L01");
-        Course class5 = new Course("CPSC",625, "L01");
+    public void run() {
+        List<Course> courses = new ArrayList<Course>();
+        ;
+        Course class1 = new Course("CPSC", 413, "L01");
+        Course class2 = new Course("CPSC", 511, "L01");
+        Course class3 = new Course("CPSC", 201, "L01");
+        Course class4 = new Course("CPSC", 109, "L01");
+        Course class5 = new Course("CPSC", 625, "L01");
 
         courses.add(class1);
         courses.add(class2);
@@ -38,12 +38,13 @@ public class OrTree {
         courses.add(class5);
 
         List<Lab> labs = null;
-        List<Slot> sched = new ArrayList<Slot>();;
-        Slot element = new Slot("mon","8am",1,1);
-        Slot element1 = new Slot("mon","9am",1,1);
-        Slot element2 = new Slot("mon","10am",1,1);
-        Slot element3 = new Slot("mon","1am",1,1);
-        Slot element4 = new Slot("mon","2am",1,1);
+        List<Slot> sched = new ArrayList<Slot>();
+        ;
+        Slot element = new Slot("mon", "8am", 1, 1);
+        Slot element1 = new Slot("mon", "9am", 1, 1);
+        Slot element2 = new Slot("mon", "10am", 1, 1);
+        Slot element3 = new Slot("mon", "1am", 1, 1);
+        Slot element4 = new Slot("mon", "2am", 1, 1);
         sched.add(element);
         sched.add(element1);
         sched.add(element2);
@@ -52,7 +53,7 @@ public class OrTree {
 
 
         OrTreeNode head = new OrTreeNode(sched);
-        generateTree(head,courses,labs,5677);
+        generateTree(head, courses, labs, 5677);
 
         Output output = new Output();
 
@@ -65,7 +66,6 @@ public class OrTree {
 //        System.out.print(solution.get(4).getCourse() + "\n");
 
     }
-
 
 
     public boolean generateTree(OrTreeNode head, List<Course> course, List<Lab> labs, int randomInt) { /// FIX randomINT
@@ -84,53 +84,49 @@ public class OrTree {
             course_added = course.get(0);
             course.remove(0);
             //for (int i = 0; i < head.getSchedule().size(); i++) {
-                head.altern(course_added, false);
+            head.altern(course_added, false);
             //}
             //add to tree
-        }
-        else if (labs != null  && !labs.isEmpty()) {
+        } else if (labs != null && !labs.isEmpty()) {
             lab_added = labs.get(0);
             labs.remove(0);
             for (int i = 0; i < head.getSchedule().size(); i++) {
                 head.altern(lab_added, false);
             }
-        }
-        else {
+        } else {
             head.setSolvedToTrue();
             solution = head.getSchedule();
         }
         Random randomGenerator = new Random();
         randomInt = randomGenerator.nextInt();
-        while(randomInt <  1){
+        while (randomInt < 1) {
             randomInt = randomGenerator.nextInt();
         }
-       int randomInt1 = randomInt % head.getSchedule().size() - 1;
-        if(head.getChildren() != null)
-        solved = generateTree(head.getChildren().get(0), course, labs, randomInt1);
+        int modNumber = (head.getChildren() == null ? head.getSchedule().size() : head.getChildren().size());
+        int randomInt1 = randomInt % modNumber;
+        if (head.getChildren() != null)
+            solved = generateTree(head.getChildren().get(randomInt1), course, labs, randomInt1);
         return solved;
 
     }
 
-    public List<Slot> converge(OrTreeNode head, List<Slot> schedule_1, List<Slot> schedule_2, int randomInt)
-    {
-        if(schedule_1.size() == 0)
+    public List<Slot> converge(OrTreeNode head, List<Slot> schedule_1, List<Slot> schedule_2, int randomInt) {
+        if (schedule_1.size() == 0)
             return head.getSchedule();
 
-        if(schedule_1.get(0).equals(schedule_2.get(0)))
-        {
+        if (schedule_1.get(0).equals(schedule_2.get(0))) {
             head.altern(schedule_1.get(0).getCourse(), true);
             schedule_1.remove(0);
             schedule_2.remove(0);
-        }
-        else{
+        } else {
             Random randomGenerator = new Random();
             randomInt = randomGenerator.nextInt(randomInt);
             randomInt = randomInt % 2;
 
-            if(randomInt == 1)
+            if (randomInt == 1)
                 head.altern(schedule_1.get(0).getCourse(), true);
             else
-                head.altern(schedule_2.get(0).getCourse(),true);
+                head.altern(schedule_2.get(0).getCourse(), true);
 
             schedule_1.remove(0);
             schedule_2.remove(0);
