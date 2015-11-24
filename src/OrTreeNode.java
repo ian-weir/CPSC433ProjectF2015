@@ -45,10 +45,7 @@ public class OrTreeNode {
             aSlot = schedule.get(index);
             if (aSlot.getCourse() == null)
             {
-//                childSchedule = createChild(index, course);
-//                child.schedule = childSchedule;
                 child = new OrTreeNode(createChild(index, course));
-
               children.add(children.size(),child);
               if(isGenetic)
                   break;
@@ -62,24 +59,26 @@ public class OrTreeNode {
 
         if (course instanceof Lab)
         {
+            tempCopy.get(index).setCourse(course);
             slotToAddTo.setCourse(course);
             slotToAddTo.setIsCourse(false);
         }
         else
         {
+            tempCopy.get(index).setCourse(course);
             slotToAddTo.setCourse(course);
             slotToAddTo.setIsCourse(true);
         }
 
-        tempCopy.remove(index);
-        tempCopy.add(index, slotToAddTo);
+//        tempCopy.remove(index);
+  //      tempCopy.add(index, slotToAddTo);
         return tempCopy;
     }
 
     private List<Slot> deepCopy(){
         List<Slot> newList = new ArrayList<>();
 
-        for(Slot slot : schedule){
+        for(Slot slot : this.schedule){
             newList.add(new Slot(slot));
         }
 

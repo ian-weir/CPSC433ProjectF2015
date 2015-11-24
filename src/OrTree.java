@@ -54,11 +54,15 @@ public class OrTree {
         OrTreeNode head = new OrTreeNode(sched);
         generateTree(head,courses,labs,5677);
 
-        System.out.print(solution.get(0).getCourse() + "\n");
-        System.out.print(solution.get(1).getCourse() + "\n");
-        System.out.print(solution.get(2).getCourse() + "\n");
-        System.out.print(solution.get(3).getCourse() + "\n");
-        System.out.print(solution.get(4).getCourse() + "\n");
+        Output output = new Output();
+
+        output.output(solution, 10);
+
+//        System.out.print(solution.get(0).getCourse() + "\n");
+//        System.out.print(solution.get(1).getCourse() + "\n");
+//        System.out.print(solution.get(2).getCourse() + "\n");
+//        System.out.print(solution.get(3).getCourse() + "\n");
+//        System.out.print(solution.get(4).getCourse() + "\n");
 
     }
 
@@ -79,9 +83,9 @@ public class OrTree {
         if (course != null && !course.isEmpty()) {
             course_added = course.get(0);
             course.remove(0);
-            for (int i = 0; i < head.getSchedule().size(); i++) {
+            //for (int i = 0; i < head.getSchedule().size(); i++) {
                 head.altern(course_added, false);
-            }
+            //}
             //add to tree
         }
         else if (labs != null  && !labs.isEmpty()) {

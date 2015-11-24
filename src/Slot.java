@@ -17,6 +17,7 @@ public class Slot {
         time = slot.getTime();
         maxCapcity = slot.getMaxCapcity();
         minCapacity = slot.getMinCapacity();
+        setCourse(slot.getCourse());
         isCourse = slot.isCourse();
     }
 
