@@ -45,8 +45,9 @@ public class OrTreeNode {
             aSlot = schedule.get(index);
             if (aSlot.getCourse() == null)
             {
-                childSchedule = createChild(index, course);
-                child.schedule = childSchedule;
+//                childSchedule = createChild(index, course);
+//                child.schedule = childSchedule;
+                child = new OrTreeNode(createChild(index, course));
 
               children.add(children.size(),child);
               if(isGenetic)

@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -75,7 +76,7 @@ public class OrTree {
             return true;
         }
 
-        if (course.size() > 0) {
+        if (course != null && !course.isEmpty()) {
             course_added = course.get(0);
             course.remove(0);
             for (int i = 0; i < head.getSchedule().size(); i++) {
@@ -83,7 +84,7 @@ public class OrTree {
             }
             //add to tree
         }
-        else if (labs.size() > 0) {
+        else if (labs != null  && !labs.isEmpty()) {
             lab_added = labs.get(0);
             labs.remove(0);
             for (int i = 0; i < head.getSchedule().size(); i++) {
@@ -95,7 +96,10 @@ public class OrTree {
             solution = head.getSchedule();
         }
         Random randomGenerator = new Random();
-        randomInt = randomGenerator.nextInt(randomInt);
+        randomInt = randomGenerator.nextInt();
+        while(randomInt <  1){
+            randomInt = randomGenerator.nextInt();
+        }
        int randomInt1 = randomInt % head.getSchedule().size() - 1;
         if(head.getChildren() != null)
         solved = generateTree(head.getChildren().get(0), course, labs, randomInt1);
