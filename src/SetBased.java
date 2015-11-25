@@ -23,7 +23,7 @@ public class SetBased {
         this.fileParser = fileParser;
     }
 
-    private Fact runSearch(FileParser fileParser) {
+    public Fact runSearch() {
         Fact bestFact = new Fact();
         List<Slot> newSchedule;
         int currentGeneration = 1;

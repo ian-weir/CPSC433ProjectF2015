@@ -10,6 +10,7 @@ public class Main {
         FileParser fileParser = new FileParser();
         Eval eval = new Eval();
         int weightMinFilled, weightPref, weightPair, weightSecDiff;
+        Output output = new Output();
 
         fileParser.setupData("tester.txt");
 
@@ -27,7 +28,9 @@ public class Main {
             weightSecDiff = 1;
         } else {
             System.out.println("Incorrect number of weights! Either have no weights at all will be set to 1 or have each weight included");
+            return;
         }
+        SetBased setBased = new SetBased(weightMinFilled, weightPref, weightPair, weightSecDiff, fileParser);
+        setBased.runSearch();
     }
-
 }
