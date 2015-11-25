@@ -55,23 +55,17 @@ public class OrTreeNode {
     private List<Slot> createChild(int index, Course course)
     {
         List<Slot> tempCopy = deepCopy();  // If 2 lists are chaning at same time this is the problem -> Ian's fault
-        Slot slotToAddTo = tempCopy.get(index);
 
         if (course instanceof Lab)
         {
             tempCopy.get(index).setCourse(course);
-            slotToAddTo.setCourse(course);
-            slotToAddTo.setIsCourse(false);
+            tempCopy.get(index).setIsCourse(false);
         }
         else
         {
             tempCopy.get(index).setCourse(course);
-            slotToAddTo.setCourse(course);
-            slotToAddTo.setIsCourse(true);
+            tempCopy.get(index).setIsCourse(true);
         }
-
-//        tempCopy.remove(index);
-  //      tempCopy.add(index, slotToAddTo);
         return tempCopy;
     }
 
