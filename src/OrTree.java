@@ -85,8 +85,8 @@ public class OrTree {
 
     public boolean generateTree(OrTreeNode head, List<Course> course, List<Lab> labs) { /// FIX randomINT
         int randomInt;
-        Course course_added;
-        Lab lab_added;
+        Course course_added = null;
+        Lab lab_added = null;
         boolean solved = false;
         //Constr con = new Constr();
 
@@ -124,6 +124,16 @@ public class OrTree {
             return solved;
         else
         {
+            if(course_added != null && !course.isEmpty()){
+                course.add(0, course_added);
+                head.getSchedule().remove(course_added);
+            } else if(lab_added != null && !labs.isEmpty()){
+                labs.add(0, lab_added);
+                head.getSchedule().remove(lab_added);
+            }
+            if(head.getChildren() == null || head.getChildren().isEmpty()){
+                return false;
+            }
             int index = randomInt1 + 1;
             if(index == head.getChildren().size())
                 index = 0;
