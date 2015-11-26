@@ -11,7 +11,7 @@ public class Main {
         Eval eval = new Eval();
         int weightMinFilled, weightPref, weightPair, weightSecDiff;
 
-     //   fileParser.setupData("tester.txt");
+        fileParser.setupData("tester.txt");
 
 
         if (args.length == 4) {
@@ -20,7 +20,7 @@ public class Main {
             weightPair = Integer.parseInt(args[2]);
             weightSecDiff = Integer.parseInt(args[3]);
 
-        } else if(args.length == 0){
+        } else if (args.length == 0) {
             weightMinFilled = 1;
             weightPref = 1;
             weightPair = 1;
@@ -29,8 +29,16 @@ public class Main {
             System.out.println("Incorrect number of weights! Either have no weights at all will be set to 1 or have each weight included");
         }
 
-       // OrTree test = new OrTree();
+        // OrTree test = new OrTree();
         //test.run();
+//        SetBased setBased = new SetBased(weightMinFilled, weightPref, weightPair, weightSecDiff, fileParser);
+//        setBased.runSearch();
+
+        OrTree orTree = new OrTree(fileParser);
+        orTree.initialize();
+        //output.orTree.getSolution()
+
+//        output.output(schedule, 0);
     }
 
 }

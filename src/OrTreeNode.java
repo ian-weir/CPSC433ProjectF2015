@@ -47,7 +47,7 @@ public class OrTreeNode {
 
             if ((course instanceof Lab && !schedule.get(index).isCourse()) || (!(course instanceof Lab) && schedule.get(index).isCourse())) {
 
-                aSlot = schedule.get(index);
+                aSlot = new Slot(schedule.get(index));
 
                 if (aSlot.getCourse() == null) {
                     aSlot.setCourse(course);

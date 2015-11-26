@@ -9,7 +9,7 @@ public class OrTree {
     private FileParser fileParser;
     private Constr hardConstraints;
 
-    public OrTree(FileParser fileParser){
+    public OrTree(FileParser fileParser) {
         this.fileParser = fileParser;
         hardConstraints = new Constr(fileParser);//new Constr(fileParser.getNotCompatible(), fileParser.getPartialAssignments(), fileParser.getUnwanted(), fileParser.getAllCourses(), fileParser.getAllLabs());
     }
@@ -99,16 +99,12 @@ public class OrTree {
         if (course != null && !course.isEmpty()) {
             course_added = course.get(0);
             course.remove(0);
-            //for (int i = 0; i < head.getSchedule().size(); i++) {
             head.altern(course_added, false, hardConstraints);
-            //}
             //add to tree
         } else if (labs != null && !labs.isEmpty()) {
             lab_added = labs.get(0);
             labs.remove(0);
-            for (int i = 0; i < head.getSchedule().size(); i++) {
-                head.altern(lab_added, false, hardConstraints);
-            }
+            head.altern(lab_added, false, hardConstraints);
         } else {
             head.setSolvedToTrue();
             solution = head.getSchedule();
@@ -120,7 +116,7 @@ public class OrTree {
         }
         int modNumber = (head.getChildren() == null || head.getChildren().isEmpty() ? head.getSchedule().size() : head.getChildren().size());
         int randomInt1 = randomInt % modNumber;
-        if (head.getChildren() != null)
+        if (head.getChildren() != null || !head.getChildren().isEmpty())
             solved = generateTree(head.getChildren().get(randomInt1), course, labs);
         return solved;
 
@@ -151,13 +147,13 @@ public class OrTree {
     }
 */
 
-    private List<Slot> createBlankSchedule(FileParser fileParser){
+    private List<Slot> createBlankSchedule(FileParser fileParser) {
         List<Slot> blankSchedule = new ArrayList<>();
 
-        for(Slot slot : fileParser.getCourseSlots().values()){
+        for (Slot slot : fileParser.getCourseSlots().values()) {
             blankSchedule.add(slot);
         }
-        for(Slot slot : fileParser.getLabSlots().values()){
+        for (Slot slot : fileParser.getLabSlots().values()) {
             blankSchedule.add(slot);
         }
         return blankSchedule;
