@@ -12,7 +12,9 @@ public class Eval {
 
         for (int i = 0; i < schedule.size(); i++) {
             if (i != schedule.size() - 1 && schedule.get(i).getTime().equals(schedule.get(i + 1).getTime()) && schedule.get(i).getDay().equals(schedule.get(i + 1).getDay())) {
-                classCount++;
+                if (schedule.get(i).getCourse() != null) {
+                    classCount++;
+                }
             } else {
                 if (classCount < currentMin) {
                     penalty++;

@@ -15,7 +15,7 @@ public class SetBased {
 
     SetBased(int weightMinFilled, int weightPref, int weightPair, int weightSecDiff, FileParser fileParser) {
         facts = new ArrayList<>();
-        orTree = new OrTree();
+        orTree = new OrTree(fileParser);
         this.weightMinFilled = weightMinFilled;
         this.weightPref = weightPref;
         this.weightPair = weightPair;
