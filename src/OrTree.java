@@ -89,8 +89,11 @@ public class OrTree {
         Lab lab_added = null;
         boolean solved = false;
 
+
         if (head.getSolved() == 0)
             return false;
+
+
         if (head.getSolved() == 1) {
             solution = head.getSchedule();
             return true;
@@ -119,12 +122,10 @@ public class OrTree {
         if (head.getChildren() != null && !head.getChildren().isEmpty())
             solved = generateTree(head.getChildren().get(randomInt1), course, labs);
 
-        if(solved == true) {
+        if (solved == true) {
             return solved;
-        }
-        else
-        {
-            if(head.getChildren() != null) {
+        } else {
+            if (head.getChildren() != null) {
                 int index = randomInt1 + 1;
                 if (index == head.getChildren().size()) {
                     index = 0;
@@ -137,23 +138,23 @@ public class OrTree {
                     if (solved == true) {
                         break;
                     }
+                    index++;
                 }
             }
-            else
-            if(!solved) {
+            if (!solved) {
                 if (course_added != null) {
-                    course.add(0, course_added);
+                    course.add(course_added);
                     head.getSchedule().remove(course_added);
                 } else if (lab_added != null) {
-                    labs.add(0, lab_added);
+                    labs.add(lab_added);
                     head.getSchedule().remove(lab_added);
                 }
-                if (head.getChildren() == null || head.getChildren().isEmpty()) {
-                    return false;
-                }
+                //if (head.getChildren() == null || head.getChildren().isEmpty()) {
+                return false;
             }
+            //}
         }
-    return solved;
+        return solved;
     }
 /*
     public List<Slot> converge(OrTreeNode head, List<Slot> schedule_1, List<Slot> schedule_2, int randomInt) {
@@ -193,9 +194,9 @@ public class OrTree {
         return blankSchedule;
     }
 
-    private List<Slot> stripEmptySlots (){
-        for(int i = 0; i < solution.size() ; i++){
-            if(solution.get(i).getCourse() == null){
+    private List<Slot> stripEmptySlots() {
+        for (int i = 0; i < solution.size(); i++) {
+            if (solution.get(i).getCourse() == null) {
                 solution.remove(i);
                 i--;
             }

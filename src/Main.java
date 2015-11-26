@@ -11,7 +11,7 @@ public class Main {
         Eval eval = new Eval();
         int weightMinFilled, weightPref, weightPair, weightSecDiff;
 
-        fileParser.setupData("tester.txt");
+        fileParser.setupData("test.txt");
 
 
         if (args.length == 4) {
