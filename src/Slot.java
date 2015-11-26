@@ -21,6 +21,9 @@ public class Slot {
         isCourse = slot.isCourse();
     }
 
+    public boolean sameSlot(Slot slot){
+        return this.day.equals(slot.getDay()) && this.getTime().equals(slot.getTime()) && this.isCourse == slot.isCourse();
+    }
 
     public String getDay() {
         return day;
