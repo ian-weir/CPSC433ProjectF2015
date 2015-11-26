@@ -6,9 +6,10 @@ public class OrTreeNode {
     private int solved;             //0 means no, 1 means yes and 2 means ?
     private List<OrTreeNode> children;
 
-    OrTreeNode(){}
+    OrTreeNode() {
+    }
 
-    OrTreeNode(List<Slot> schedule){
+    OrTreeNode(List<Slot> schedule) {
         this.schedule = schedule;
         solved = 2;
     }
@@ -25,39 +26,48 @@ public class OrTreeNode {
         return children;
     }
 
-    public void setSolvedToFalse(){
+    public void setSolvedToFalse() {
         solved = 0;
     }
 
-    public void setSolvedToTrue(){
+    public void setSolvedToTrue() {
         solved = 1;
     }
 
-    public void altern(Course course, boolean isGenetic){
+    public void altern(Course course, boolean isGenetic, Constr constraintChecker) {
 
         Slot aSlot;
         List<Slot> childSchedule;
         OrTreeNode child = new OrTreeNode();
         children = new ArrayList<>();
 
-        for(int index = 0; index <  schedule.size(); index++) {
-          //  System.out.println("Sched Size: " + schedule.size());
-            aSlot = schedule.get(index);
-            if (aSlot.getCourse() == null)
-            {
-                child = new OrTreeNode(createChild(index, course));
-              children.add(children.size(),child);
-              if(isGenetic)
-                  break;
+
+        for (int index = 0; index < schedule.size(); index++) {
+            //  System.out.println("Sched Size: " + schedule.size());
+
+            if ((course instanceof Lab && !schedule.get(index).isCourse()) || (!(course instanceof Lab) && schedule.get(index).isCourse())) {
+
+                aSlot = schedule.get(index);
+
+                if (aSlot.getCourse() == null) {
+                    aSlot.setCourse(course);
+                    if(constraintChecker.constr(schedule, aSlot))
+                    {
+
+                    child = new OrTreeNode(createChild(index, course));
+                    children.add(children.size(), child);
+                    if (isGenetic)
+                        break;
+                }
+                }
             }
         }
     }
-    private List<Slot> createChild(int index, Course course)
-    {
+
+    private List<Slot> createChild(int index, Course course) {
         List<Slot> tempCopy = deepCopy();  // If 2 lists are chaning at same time this is the problem -> Ian's fault
 
-        if (course instanceof Lab)
-        {
+        if (course instanceof Lab) {
             tempCopy.get(index).setCourse(course);
             tempCopy.get(index).setIsCourse(false);
         }
@@ -69,10 +79,10 @@ public class OrTreeNode {
         return tempCopy;
     }
 
-    private List<Slot> deepCopy(){
+    private List<Slot> deepCopy() {
         List<Slot> newList = new ArrayList<>();
 
-        for(Slot slot : this.schedule){
+        for (Slot slot : this.schedule) {
             newList.add(new Slot(slot));
         }
 

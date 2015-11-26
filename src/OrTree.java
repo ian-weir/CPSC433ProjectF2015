@@ -49,11 +49,16 @@ public class OrTree {
         List<Lab> labs = null;
         List<Slot> sched = new ArrayList<Slot>();
         ;
-        Slot element = new Slot("mon", "8am", 1, 1);
-        Slot element1 = new Slot("mon", "9am", 1, 1);
-        Slot element2 = new Slot("mon", "10am", 1, 1);
-        Slot element3 = new Slot("mon", "1am", 1, 1);
-        Slot element4 = new Slot("mon", "2am", 1, 1);
+        Slot element = new Slot("MO", "8:00", 1, 1);
+        element.setIsCourse(true);
+        Slot element1 = new Slot("MO", "9:00", 1, 1);
+        Slot element2 = new Slot("MO", "10:00", 1, 1);
+        Slot element3 = new Slot("MO", "1:00", 1, 1);
+        Slot element4 = new Slot("MO", "2:00", 1, 1);
+        element1.setIsCourse(true);
+        element2.setIsCourse(true);
+        element3.setIsCourse(true);
+        element4.setIsCourse(true);
         sched.add(element);
         sched.add(element1);
         sched.add(element2);
@@ -82,6 +87,7 @@ public class OrTree {
         Course course_added;
         Lab lab_added;
         boolean solved = false;
+        //Constr con = new Constr();
 
         if (head.getSolved() == 0)
             return false;
@@ -112,14 +118,14 @@ public class OrTree {
         while (randomInt < 1) {
             randomInt = randomGenerator.nextInt();
         }
-        int modNumber = (head.getChildren() == null ? head.getSchedule().size() : head.getChildren().size());
+        int modNumber = (head.getChildren() == null || head.getChildren().isEmpty() ? head.getSchedule().size() : head.getChildren().size());
         int randomInt1 = randomInt % modNumber;
         if (head.getChildren() != null)
             solved = generateTree(head.getChildren().get(randomInt1), course, labs);
         return solved;
 
     }
-
+/*
     public List<Slot> converge(OrTreeNode head, List<Slot> schedule_1, List<Slot> schedule_2, int randomInt) {
         if (schedule_1.size() == 0)
             return head.getSchedule();
@@ -143,7 +149,7 @@ public class OrTree {
         }
         return converge(head.getChildren().get(0), schedule_1, schedule_2, randomInt);
     }
-
+*/
 
     private List<Slot> createBlankSchedule(FileParser fileParser){
         List<Slot> blankSchedule = new ArrayList<>();
