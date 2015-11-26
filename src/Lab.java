@@ -5,6 +5,12 @@ public class Lab extends Course{
         super(department, classNum, lecSection);
         this.labSection = labSection;
     }
+
+    public Lab(Lab lab){
+        super(lab);
+        labSection = lab.getLabSection();
+    }
+
     public String getLabSection() {
         return labSection;
     }

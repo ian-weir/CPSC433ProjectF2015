@@ -107,7 +107,7 @@ public class Eval {
         for (Slot slot : schedule) {
             Course slotCourse = slot.getCourse();
             compareIndex = slotIndex + 1;
-            while (slot.getTime().equals(schedule.get(compareIndex).getTime()) && slot.getCourse().equals(schedule.get(compareIndex).getCourse())) {
+            if(slot.getTime().equals(schedule.get(compareIndex).getTime()) && slot.getCourse().equals(schedule.get(compareIndex).getCourse())) {
                 compareCourse = schedule.get(compareIndex).getCourse();
                 if (!(slotCourse instanceof Lab) && !(compareCourse instanceof Lab)) {
                     if (slotCourse.getClassNum() == compareCourse.getClassNum()) {

@@ -17,7 +17,7 @@ public class OrTree {
     public List<Slot> initialize() {
         //create blank sched
         //assign to head
-        generateTree(new OrTreeNode(createBlankSchedule(fileParser)), fileParser.getAllCourses(), fileParser.getAllLabs());
+        generateTree(new OrTreeNode(createBlankSchedule(fileParser)), deepCopyCourses(fileParser.getAllCourses()), deepCopyLabs(fileParser.getAllLabs()));
         stripEmptySlots();
         return solution;
     }
@@ -152,6 +152,21 @@ public class OrTree {
             }
         }
         return solution;
+    }
+
+    private List<Course> deepCopyCourses(List<Course> courses){
+        List<Course> deepCopyCourses = new ArrayList<>();
+        for(Course course : courses){
+            deepCopyCourses.add(new Course(course));
+        }
+        return deepCopyCourses;
+    }
+    private List<Lab> deepCopyLabs(List<Lab> labs){
+        List<Lab> deepCopyLabs = new ArrayList<>();
+        for(Lab lab : labs){
+            deepCopyLabs.add(new Lab(lab));
+        }
+        return deepCopyLabs;
     }
 
 

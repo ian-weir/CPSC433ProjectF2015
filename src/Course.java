@@ -9,6 +9,13 @@ public class Course {
         this.lecSection = lecSection;
     }
 
+    public Course(Course course){
+        department = course.getDepartment();
+        lecSection = course.getLecSection();
+        classNum = course.getClassNum();
+    }
+
+
     public String getDepartment() {
         return department;
     }
