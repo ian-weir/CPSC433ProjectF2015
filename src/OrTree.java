@@ -18,6 +18,7 @@ public class OrTree {
         //create blank sched
         //assign to head
         generateTree(new OrTreeNode(createBlankSchedule(fileParser)), fileParser.getAllCourses(), fileParser.getAllLabs());
+        stripEmptySlots();
         return solution;
     }
 
@@ -116,7 +117,7 @@ public class OrTree {
         }
         int modNumber = (head.getChildren() == null || head.getChildren().isEmpty() ? head.getSchedule().size() : head.getChildren().size());
         int randomInt1 = randomInt % modNumber;
-        if (head.getChildren() != null || !head.getChildren().isEmpty())
+        if (head.getChildren() != null && !head.getChildren().isEmpty())
             solved = generateTree(head.getChildren().get(randomInt1), course, labs);
         return solved;
 
@@ -158,5 +159,16 @@ public class OrTree {
         }
         return blankSchedule;
     }
+
+    private List<Slot> stripEmptySlots (){
+        for(int i = 0; i < solution.size() ; i++){
+            if(solution.get(i).getCourse() == null){
+                solution.remove(i);
+                i--;
+            }
+        }
+        return solution;
+    }
+
 
 }

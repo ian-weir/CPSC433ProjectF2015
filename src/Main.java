@@ -35,10 +35,9 @@ public class Main {
 //        setBased.runSearch();
 
         OrTree orTree = new OrTree(fileParser);
-        orTree.initialize();
-        //output.orTree.getSolution()
-
-//        output.output(schedule, 0);
+        List<Slot> schedule = orTree.initialize();
+        Output output = new Output();
+        output.output(schedule, 0);
     }
 
 }
