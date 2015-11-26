@@ -34,7 +34,7 @@ public class OrTreeNode {
         solved = 1;
     }
 
-    public void altern(Course course, boolean isGenetic, Constr constraintChecker) {
+    public void altern(Course course, boolean isGenetic, Constr hardConstraints) {
 
         Slot aSlot;
         List<Slot> childSchedule;
@@ -51,7 +51,7 @@ public class OrTreeNode {
 
                 if (aSlot.getCourse() == null) {
                     aSlot.setCourse(course);
-                    if(constraintChecker.constr(schedule, aSlot))
+                    if(hardConstraints.constr(schedule, aSlot))
                     {
 
                     child = new OrTreeNode(createChild(index, course));

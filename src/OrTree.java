@@ -11,7 +11,7 @@ public class OrTree {
 
     public OrTree(FileParser fileParser){
         this.fileParser = fileParser;
-        hardConstraints = new Constr(fileParser.getNotCompatible(), fileParser.getPartialAssignments(), fileParser.getUnwanted(), fileParser.getAllCourses(), fileParser.getAllLabs());
+        hardConstraints = new Constr(fileParser);//new Constr(fileParser.getNotCompatible(), fileParser.getPartialAssignments(), fileParser.getUnwanted(), fileParser.getAllCourses(), fileParser.getAllLabs());
     }
 
     public List<Slot> initialize() {
@@ -100,14 +100,14 @@ public class OrTree {
             course_added = course.get(0);
             course.remove(0);
             //for (int i = 0; i < head.getSchedule().size(); i++) {
-            head.altern(course_added, false);
+            head.altern(course_added, false, hardConstraints);
             //}
             //add to tree
         } else if (labs != null && !labs.isEmpty()) {
             lab_added = labs.get(0);
             labs.remove(0);
             for (int i = 0; i < head.getSchedule().size(); i++) {
-                head.altern(lab_added, false);
+                head.altern(lab_added, false, hardConstraints);
             }
         } else {
             head.setSolvedToTrue();
