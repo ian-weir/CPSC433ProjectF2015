@@ -6,9 +6,19 @@ import java.util.Random;
 public class OrTree {
 
     private List<Slot> solution;
+    private FileParser fileParser;
+    private Constr hardConstraints;
+
+    public OrTree(FileParser fileParser){
+        this.fileParser = fileParser;
+        hardConstraints = new Constr(fileParser.getNotCompatible(), fileParser.getPartialAssignments(), fileParser.getUnwanted(), fileParser.getAllCourses(), fileParser.getAllLabs());
+    }
 
     public List<Slot> initialize() {
-        return crossover(null, null);
+        //create blank sched
+        //assign to head
+        generateTree(new OrTreeNode(createBlankSchedule(fileParser)), fileParser.getAllCourses(), fileParser.getAllLabs());
+        return solution;
     }
 
     public List<Slot> crossover(List<Slot> parentOne, List<Slot> parentTwo) {
@@ -24,7 +34,6 @@ public class OrTree {
 
     public void run() {
         List<Course> courses = new ArrayList<Course>();
-        ;
         Course class1 = new Course("CPSC", 413, "L01");
         Course class2 = new Course("CPSC", 511, "L01");
         Course class3 = new Course("CPSC", 201, "L01");
@@ -53,7 +62,7 @@ public class OrTree {
 
 
         OrTreeNode head = new OrTreeNode(sched);
-        generateTree(head, courses, labs, 5677);
+        generateTree(head, courses, labs);
 
         Output output = new Output();
 
@@ -68,7 +77,8 @@ public class OrTree {
     }
 
 
-    public boolean generateTree(OrTreeNode head, List<Course> course, List<Lab> labs, int randomInt) { /// FIX randomINT
+    public boolean generateTree(OrTreeNode head, List<Course> course, List<Lab> labs) { /// FIX randomINT
+        int randomInt;
         Course course_added;
         Lab lab_added;
         boolean solved = false;
@@ -105,7 +115,7 @@ public class OrTree {
         int modNumber = (head.getChildren() == null ? head.getSchedule().size() : head.getChildren().size());
         int randomInt1 = randomInt % modNumber;
         if (head.getChildren() != null)
-            solved = generateTree(head.getChildren().get(randomInt1), course, labs, randomInt1);
+            solved = generateTree(head.getChildren().get(randomInt1), course, labs);
         return solved;
 
     }
@@ -134,5 +144,17 @@ public class OrTree {
         return converge(head.getChildren().get(0), schedule_1, schedule_2, randomInt);
     }
 
+
+    private List<Slot> createBlankSchedule(FileParser fileParser){
+        List<Slot> blankSchedule = new ArrayList<>();
+
+        for(Slot slot : fileParser.getCourseSlots().values()){
+            blankSchedule.add(slot);
+        }
+        for(Slot slot : fileParser.getLabSlots().values()){
+            blankSchedule.add(slot);
+        }
+        return blankSchedule;
+    }
 
 }
