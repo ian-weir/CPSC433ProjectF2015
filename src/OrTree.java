@@ -119,8 +119,24 @@ public class OrTree {
         int randomInt1 = randomInt % modNumber;
         if (head.getChildren() != null && !head.getChildren().isEmpty())
             solved = generateTree(head.getChildren().get(randomInt1), course, labs);
-        return solved;
 
+        if(solved == true)
+            return solved;
+        else
+        {
+            int index = randomInt1 + 1;
+            if(index == head.getChildren().size())
+                index = 0;
+            for(int i = 0; i < head.getChildren().size(); i++)
+            {
+                if(index == head.getChildren().size() - 1)
+                    index = 0;
+                solved = generateTree(head.getChildren().get(index), course, labs);
+                if(solved == true)
+                    break;
+            }
+        }
+    return solved;
     }
 /*
     public List<Slot> converge(OrTreeNode head, List<Slot> schedule_1, List<Slot> schedule_2, int randomInt) {
