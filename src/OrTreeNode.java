@@ -66,17 +66,51 @@ public class OrTreeNode {
 
     private List<Slot> createChild(int index, Course course) {
         List<Slot> tempCopy = deepCopy();  // If 2 lists are chaning at same time this is the problem -> Ian's fault
+        Slot item;
 
         if (course instanceof Lab) {
             tempCopy.get(index).setCourse(course);
-            tempCopy.get(index).setIsCourse(false);
+           // tempCopy.get(index).setIsCourse(false);
         }
         else
         {
             tempCopy.get(index).setCourse(course);
-            tempCopy.get(index).setIsCourse(true);
+           // tempCopy.get(index).setIsCourse(true);
         }
+
+      /*  int max = tempCopy.get(index).getMaxCapcity();
+        int counter = 0;
+
+
+        while (counter < max && counter < schedule.size() && (schedule.get(index).e))
+             counter++;
+
+        if(counter < max)
+            tempCopy.add(index, item);
+*/
+    if(needToAddSlot(index, schedule))
+    {
+        item = new Slot(tempCopy.get(index));
+        item.setCourse(null);
+        tempCopy.add(index,item);
+    }
+
         return tempCopy;
+    }
+
+    private boolean needToAddSlot(int index, List<Slot> tempCopy)
+    {
+        int max = tempCopy.get(index).getMaxCapcity();
+        int counter = 0;
+        boolean slotNeeded = false;
+
+        while (counter < max && counter < schedule.size() && (schedule.get(index).sameSlot(schedule.get(counter))))
+            counter++;
+
+        if(counter < max)
+            slotNeeded = true;
+
+        return slotNeeded;
     }
 
     private List<Slot> deepCopy() {
