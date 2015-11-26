@@ -13,15 +13,17 @@ public class Constr {
 	private boolean containsCPSC813 = false;
 	private boolean containsCPSC913 = false;
 	
-    public Constr(Map<Course, List<Course>> notCompatible, Map<Course, Slot> partialAssignments, Map<Course,List<Slot>> unwanted,List<Course> allCourses,List<Lab> allLabs){
-    	this.notCompatible = notCompatible;
-    	this.partialAssignments = partialAssignments;
-    	this.unwanted = unwanted;
-    	this.allCourses = allCourses;
-    	this.allLabs = allLabs;
+	public Constr(FileParser fp){
+		this.notCompatible = fp.getNotCompatible();
+    	this.partialAssignments = fp.getPartialAssignments();
+    	this.unwanted = fp.getUnwanted();
+    	this.allCourses = new ArrayList<>();
+    	this.allCourses.addAll(fp.getAllCourses());
+    	this.allLabs = new ArrayList<>();
+    	this.allLabs.addAll(fp.getAllLabs());
     	generateSpecialCourseList();
-    }
-    
+	}
+	
     //returns true if assigning a slot(with class in it) to a schedule passes all the hard constraints
     public boolean constr(List<Slot> schedule, Slot slot){
     	return 	classMax(schedule,slot) && 
