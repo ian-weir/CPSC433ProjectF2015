@@ -88,7 +88,6 @@ public class OrTree {
         Course course_added = null;
         Lab lab_added = null;
         boolean solved = false;
-        //Constr con = new Constr();
 
         if (head.getSolved() == 0)
             return false;
@@ -120,30 +119,38 @@ public class OrTree {
         if (head.getChildren() != null && !head.getChildren().isEmpty())
             solved = generateTree(head.getChildren().get(randomInt1), course, labs);
 
-        if(solved == true)
+        if(solved == true) {
             return solved;
+        }
         else
         {
-            if(course_added != null && !course.isEmpty()){
-                course.add(0, course_added);
-                head.getSchedule().remove(course_added);
-            } else if(lab_added != null && !labs.isEmpty()){
-                labs.add(0, lab_added);
-                head.getSchedule().remove(lab_added);
-            }
-            if(head.getChildren() == null || head.getChildren().isEmpty()){
-                return false;
-            }
-            int index = randomInt1 + 1;
-            if(index == head.getChildren().size())
-                index = 0;
-            for(int i = 0; i < head.getChildren().size(); i++)
-            {
-                if(index == head.getChildren().size() - 1)
+            if(head.getChildren() != null) {
+                int index = randomInt1 + 1;
+                if (index == head.getChildren().size()) {
                     index = 0;
-                solved = generateTree(head.getChildren().get(index), course, labs);
-                if(solved == true)
-                    break;
+                }
+                for (int i = 0; i < head.getChildren().size(); i++) {
+                    if (index == head.getChildren().size() - 1) {
+                        index = 0;
+                    }
+                    solved = generateTree(head.getChildren().get(index), course, labs);
+                    if (solved == true) {
+                        break;
+                    }
+                }
+            }
+            else
+            if(!solved) {
+                if (course_added != null) {
+                    course.add(0, course_added);
+                    head.getSchedule().remove(course_added);
+                } else if (lab_added != null) {
+                    labs.add(0, lab_added);
+                    head.getSchedule().remove(lab_added);
+                }
+                if (head.getChildren() == null || head.getChildren().isEmpty()) {
+                    return false;
+                }
             }
         }
     return solved;
