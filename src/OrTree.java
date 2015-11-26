@@ -33,55 +33,6 @@ public class OrTree {
         return solution;
     }
 
-    public void run() {
-        List<Course> courses = new ArrayList<Course>();
-        Course class1 = new Course("CPSC", 413, "L01");
-        Course class2 = new Course("CPSC", 511, "L01");
-        Course class3 = new Course("CPSC", 201, "L01");
-        Course class4 = new Course("CPSC", 109, "L01");
-        Course class5 = new Course("CPSC", 625, "L01");
-
-        courses.add(class1);
-        courses.add(class2);
-        courses.add(class3);
-        courses.add(class4);
-        courses.add(class5);
-
-        List<Lab> labs = null;
-        List<Slot> sched = new ArrayList<Slot>();
-        ;
-        Slot element = new Slot("MO", "8:00", 1, 1);
-        element.setIsCourse(true);
-        Slot element1 = new Slot("MO", "9:00", 1, 1);
-        Slot element2 = new Slot("MO", "10:00", 1, 1);
-        Slot element3 = new Slot("MO", "1:00", 1, 1);
-        Slot element4 = new Slot("MO", "2:00", 1, 1);
-        element1.setIsCourse(true);
-        element2.setIsCourse(true);
-        element3.setIsCourse(true);
-        element4.setIsCourse(true);
-        sched.add(element);
-        sched.add(element1);
-        sched.add(element2);
-        sched.add(element3);
-        sched.add(element4);
-
-
-        OrTreeNode head = new OrTreeNode(sched);
-        generateTree(head, courses, labs);
-
-        Output output = new Output();
-
-        output.output(solution, 10);
-
-//        System.out.print(solution.get(0).getCourse() + "\n");
-//        System.out.print(solution.get(1).getCourse() + "\n");
-//        System.out.print(solution.get(2).getCourse() + "\n");
-//        System.out.print(solution.get(3).getCourse() + "\n");
-//        System.out.print(solution.get(4).getCourse() + "\n");
-
-    }
-
 
     public boolean generateTree(OrTreeNode head, List<Course> course, List<Lab> labs) { /// FIX randomINT
         int randomInt;
@@ -90,69 +41,68 @@ public class OrTree {
         boolean solved = false;
 
 
-        if (head.getSolved() == 0)
+        if (head.getSolved() == 0)  // Base Case 1 Not handled
             return false;
 
-
-        if (head.getSolved() == 1) {
+        if (head.getSolved() == 1) {  // Base Case 2
             solution = head.getSchedule();
             return true;
         }
 
-        if (course != null && !course.isEmpty()) {
-            course_added = course.get(0);
-            course.remove(0);
-            head.altern(course_added, false, hardConstraints);
-            //add to tree
-        } else if (labs != null && !labs.isEmpty()) {
-            lab_added = labs.get(0);
-            labs.remove(0);
-            head.altern(lab_added, false, hardConstraints);
-        } else {
+        if (course != null && !course.isEmpty()) {    // Add the classes to the schedule first
+            course_added = course.get(0);                            // get the first class in the list
+            course.remove(0);                                        // remove it as it "should not" be readded unless backtracking
+            head.altern(course_added, false, hardConstraints);    // generate all the children with that class now assigned to a slot
+          }
+        else if (labs != null && !labs.isEmpty()) {  // Add the labs to the schedule when all the classes are assigned
+            lab_added = labs.get(0);                           // get the first lab in the list
+            labs.remove(0);                                    //remove it as it "should not" be readded unless backtracking
+            head.altern(lab_added, false, hardConstraints);    //enerate all the children with that class now assigned to a slot
+          }
+        else {                              // If there are no more classes or labs to assign then we are done
             head.setSolvedToTrue();
             solution = head.getSchedule();
         }
-        Random randomGenerator = new Random();
+        Random randomGenerator = new Random();   // Need to choose a random child node to expand
         randomInt = randomGenerator.nextInt();
         while (randomInt < 1) {
             randomInt = randomGenerator.nextInt();
         }
         int modNumber = (head.getChildren() == null || head.getChildren().isEmpty() ? head.getSchedule().size() : head.getChildren().size());
         int randomInt1 = randomInt % modNumber;
-        if (head.getChildren() != null && !head.getChildren().isEmpty())
+
+        if (head.getChildren() != null && !head.getChildren().isEmpty())  // If there are children go to the randomly selected one and check for solution
             solved = generateTree(head.getChildren().get(randomInt1), course, labs);
 
-        if (solved == true) {
+        if (solved) {
             return solved;
-        } else {
+        } else {              // if no solution has been found need to check the other children of the current node
             if (head.getChildren() != null) {
-                int index = randomInt1 + 1;
+                int index = randomInt1 + 1;  // Always go to the next child index from the randomly selected node
                 if (index == head.getChildren().size()) {
                     index = 0;
                 }
-                for (int i = 0; i < head.getChildren().size(); i++) {
-                    if (index == head.getChildren().size() - 1) {
+                for (int i = 0; i < head.getChildren().size(); i++) {  // For all the children
+                    if (index == head.getChildren().size() - 1) {  // Check if in array bounds
                         index = 0;
                     }
-                    solved = generateTree(head.getChildren().get(index), course, labs);
-                    if (solved == true) {
+                    solved = generateTree(head.getChildren().get(index), course, labs);  // Check if other child has a solution
+                    if (solved == true) { // if a solution is found then stop
                         break;
                     }
                     index++;
                 }
             }
-            if (!solved) {
-                if (course_added != null) {
-                    course.add(course_added);
-                    head.getSchedule().remove(course_added);
-                } else if (lab_added != null) {
-                    labs.add(lab_added);
-                    head.getSchedule().remove(lab_added);
+            if (!solved) {    // If none of the children have a solution -> need to backtrack
+                if (course_added != null) {  // If it was a course added to create the schedual at this point
+                    course.add(course_added);    // Put the course back in the course list
+                    head.getSchedule().remove(course_added); // Take the course out of the schedual.
+                } else if (lab_added != null) {  // If it was a lab added to create the schedule at this point
+                    labs.add(lab_added);      // put the lab back in the Lab list
+                    head.getSchedule().remove(lab_added); // remove the lab from the schedule
                 }
-                //if (head.getChildren() == null || head.getChildren().isEmpty()) {
-                return false;
+                return false;  // return no solution found
             }
-            //}
         }
         return solved;
     }
