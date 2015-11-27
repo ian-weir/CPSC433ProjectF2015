@@ -5,6 +5,17 @@ import java.util.Map;
 
 public class Eval {
 
+	
+	public int evalTot(List<Slot> schedule, FileParser fileParser)
+	{
+		 Map<Course, List<Preference>> preferenceMap = fileParser.getPreferences();
+		 Map<Pair<String, String>,Slot> courseSlots = fileParser.getCourseSlots();
+		 Map<Pair<String, String>, Slot> labSlots = fileParser.getLabSlots();
+		 Map<Course, List<Course>> pairs = fileParser.getPairs();
+		
+		return minFilled(schedule) + pref(schedule, preferenceMap, courseSlots, labSlots) + pair(schedule, pairs); //+ secDiff(schedule);
+	}
+	
     public int minFilled(List<Slot> schedule) {
         int penalty = 0;
         int classCount = 1;

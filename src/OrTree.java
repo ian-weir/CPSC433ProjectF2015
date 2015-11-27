@@ -18,16 +18,56 @@ public class OrTree {
         //create blank sched
         //assign to head
         generateTree(new OrTreeNode(createBlankSchedule(fileParser)), deepCopyCourses(fileParser.getAllCourses()), deepCopyLabs(fileParser.getAllLabs()));
-        stripEmptySlots();
+        if(solution != null)
+        	stripEmptySlots();
         return solution;
     }
 
-    public List<Slot> crossover(List<Slot> parentOne, List<Slot> parentTwo) {
+    public List<Slot> crossover(List<Slot> parentOne, List<Slot> parentTwo) //TODO in the works
+    {
         List<Slot> newFact = new ArrayList<>();
-
-
+        Eval eval = new Eval();
+        int evalOne = eval.evalTot(parentOne, fileParser);
+        int evalTwo = eval.evalTot(parentTwo, fileParser);
+        Random randomGenerator = new Random();   // Need to choose a random child node to expand
+        int randomInt = randomGenerator.nextInt();
+        	randomInt = randomInt % 2;
+        
+       
+        	if(( evalOne == evalTwo ) && evalOne == 0)
+        	{
+        		newFact = parentOne;
+        	}
+        	else if(evalOne > evalTwo)
+        	{
+        		newFact = parentTwo;		
+        	}
+        	else if(evalTwo > evalOne)
+        	{
+        		newFact = parentOne;
+        	}
+        	else
+        	{
+        		if(randomInt == 1)
+        		{
+        			newFact = parentOne;
+        		}
+        		else
+        		{
+        			newFact = parentTwo;
+        		}
+        		
+        	}
+       
         return newFact;
     }
+    /*Confused here where do we call crossover?
+     while(crossIndex + 1 < head.getChildren().size() )
+            {
+            	crossover(head.getChildren().get(crossIndex).getSchedule(), head.getChildren().get(crossIndex + 1).getSchedule());
+            	crossIndex++;
+            }
+     */
 
     public List<Slot> getSolution() {
         return solution;
@@ -39,7 +79,8 @@ public class OrTree {
         Course course_added = null;
         Lab lab_added = null;
         boolean solved = false;
-
+        int crossIndex = 0;
+        int crossIndexBest = 0;
 
         if (head.getSolved() == 0)  // Base Case 1 Not handled
             return false;
@@ -53,16 +94,54 @@ public class OrTree {
             course_added = course.get(0);                            // get the first class in the list
             course.remove(0);                                        // remove it as it "should not" be readded unless backtracking
             head.altern(course_added, false, hardConstraints);    // generate all the children with that class now assigned to a slot
+           		
           }
         else if (labs != null && !labs.isEmpty()) {  // Add the labs to the schedule when all the classes are assigned
             lab_added = labs.get(0);                           // get the first lab in the list
             labs.remove(0);                                    //remove it as it "should not" be readded unless backtracking
-            head.altern(lab_added, false, hardConstraints);    //enerate all the children with that class now assigned to a slot
+            head.altern(lab_added, false, hardConstraints);    //generate all the children with that class now assigned to a slot
+            
+            
           }
         else {                              // If there are no more classes or labs to assign then we are done
             head.setSolvedToTrue();
             solution = head.getSchedule();
         }
+        
+        if(head.getChildren() != null)
+        {
+        	while((crossIndex < head.getChildren().size()) && (crossIndex + 1 < head.getChildren().size()) )
+        	{
+        		
+        		List<Slot> parentOne = head.getChildren().get(crossIndexBest).getSchedule();
+        		List<Slot> parentTwo = head.getChildren().get(crossIndex + 1).getSchedule();
+        		List <Slot> temp;
+        		if(parentOne != null && parentTwo != null)
+        		{
+        			temp = crossover(parentOne, parentTwo);
+        		
+        			if(temp == parentTwo)
+        			{
+        				crossIndexBest = crossIndex;
+        			}
+        			crossIndex++;
+        		}
+        		
+        		
+        	}
+        }
+        if(solved)
+        	return solved;
+       if (head.getChildren() != null && !head.getChildren().isEmpty())
+        solved = generateTree(head.getChildren().get(crossIndexBest), course, labs);
+        
+        
+        
+        return solved;
+        
+        
+     
+        /*
         Random randomGenerator = new Random();   // Need to choose a random child node to expand
         randomInt = randomGenerator.nextInt();
         while (randomInt < 1) {
@@ -102,9 +181,12 @@ public class OrTree {
                     head.getSchedule().remove(lab_added); // remove the lab from the schedule
                 }
                 return false;  // return no solution found
+                
             }
+            
         }
         return solved;
+        */
     }
 /*
     public List<Slot> converge(OrTreeNode head, List<Slot> schedule_1, List<Slot> schedule_2, int randomInt) {

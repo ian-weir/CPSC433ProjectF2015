@@ -31,8 +31,11 @@ public class SetBased {
 
         for(currentPopulation = 0; currentPopulation < (populationMax * cullSize) ; currentPopulation++){
             newSchedule = orTree.initialize();
+            if(newSchedule != null)
+            {
             facts.add(new Fact(newSchedule, fWert(newSchedule)));
             orTree = new OrTree(fileParser);
+            }
         }
 
 //        while(currentGeneration < maxGeneration && bestFact.getValue() != 0){
