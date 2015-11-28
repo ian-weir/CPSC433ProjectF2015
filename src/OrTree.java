@@ -22,13 +22,6 @@ public class OrTree {
         return solution;
     }
 
-    public List<Slot> crossover(List<Slot> parentOne, List<Slot> parentTwo) {
-        List<Slot> newFact = new ArrayList<>();
-
-
-        return newFact;
-    }
-
     public List<Slot> getSolution() {
         return solution;
     }

@@ -6,7 +6,7 @@ public class SetBased {
     private List<Fact> facts;
     private OrTree orTree;
     private int populationMax = 20;
-    private int maxGeneration = 20;
+    private int maxGeneration = 5;
     private double cullSize = 0.66;
     private int weightMinFilled, weightPref, weightPair, weightSecDiff;
     private Eval eval = new Eval();
@@ -60,23 +60,29 @@ public class SetBased {
             orTree = new OrTree(fileParser);
             }
         }
+        bestFact = facts.get(0);
+        while(currentGeneration < maxGeneration && bestFact.getValue() != 0){
+            if(currentPopulation == populationMax){
+                cull();
+                currentGeneration++;
+            } else {
+                orTree = new OrTree(fileParser);
+                newSchedule = orTree.runCrossover(fSelect(), fSelect());
+                facts.add(new Fact(newSchedule, fWert(newSchedule)));
+                for(Fact fact : facts){
+                    bestFact = (fact.getValue() < bestFact.getValue() ? fact : bestFact);
+                }
 
-//        while(currentGeneration < maxGeneration && bestFact.getValue() != 0){
-//            if(currentPopulation == populationMax){
-//                cull();
-//                currentGeneration++;
-//            } else {
-//                newSchedule = orTree.crossover(fSelect(), fSelect());
-//            }
-//        }
+            }
+        }
 
         //If size of facts is larger than X cull
         //Otherwise select 2 facts to use as parents
         //
         bestFact = facts.get(0);
-        //for(Fact fact : facts){
-         //   bestFact = (fact.getValue() < bestFact.getValue() ? fact : bestFact);
-       // }
+        for(Fact fact : facts){
+            bestFact = (fact.getValue() < bestFact.getValue() ? fact : bestFact);
+        }
 
 
         return bestFact;
@@ -123,8 +129,11 @@ public class SetBased {
 
     private void cull(){
         while(facts.size() >= populationMax / cullSize){
-            //get lowest score
-            //remove lowest scoring fact
+            Fact currentWorst = facts.get(0);
+            for(Fact fact: facts) {
+                currentWorst = (fact.getValue() > currentWorst.getValue() ? fact : currentWorst);
+            }
+            facts.remove(currentWorst);
         }
     }
 

@@ -1,6 +1,5 @@
 //Hello I am from the future
 
-import java.util.*;
 
 public class Main {
     public static void main(String[] args) { //Order is  weightMinFilled, weightPref, weightPair, weightSecDiff
@@ -45,10 +44,9 @@ public class Main {
         Fact fact3 = setBased.runCross(fact,fact2);
         Output output = new Output();
         output.output(fact.getSchedule(), fact.getValue());
-
-
-        output.output(fact2.getSchedule(), fact2.getValue());
-        output.output(fact3.getSchedule(), fact3.getValue());
+//        Fact fact2 = setBased.runSearch();
+//        output.output(fact2.getSchedule(), fact2.getValue());
+       // output.output(fact3.getSchedule(), fact3.getValue());
 
 //        OrTree orTree = new OrTree(fileParser);
 //        List<Slot> schedule = orTree.initialize();
