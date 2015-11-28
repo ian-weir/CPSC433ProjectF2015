@@ -23,7 +23,7 @@ public class SetBased {
         this.fileParser = fileParser;
     }
 
- /*   public Fact runCross(Fact fact1, Fact fact2){
+    public Fact runCross(Fact fact1, Fact fact2){
         Fact newFact = new Fact();
         List<Slot> newSchedule;
         int currentGeneration = 1;
@@ -44,7 +44,7 @@ public class SetBased {
     }
 
 
-*/
+
 
     public Fact runSearch() {
         Fact bestFact = new Fact();

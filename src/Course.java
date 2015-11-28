@@ -15,6 +15,14 @@ public class Course {
         classNum = course.getClassNum();
     }
 
+    public boolean isSame(Course course)
+    {
+        if(this.department.equals(course.getDepartment()))
+            if(this.classNum == course.getClassNum())
+                if(this.lecSection.equals(course.getLecSection()))
+                    return true;
+        return false;
+    }
 
     public String getDepartment() {
         return department;

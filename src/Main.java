@@ -36,15 +36,19 @@ public class Main {
             System.out.println("Incorrect number of weights! Either have no weights at all will be set to 1 or have each weight included");
         }
 
-        SetBased setBased = new SetBased(weightMinFilled, weightPref, weightPair, weightSecDiff, fileParser);
-        Fact fact = setBased.runSearch();
 
-     //   Fact fact3 = setBased.runCross(fact,fact2);
+        SetBased setBased = new SetBased(weightMinFilled, weightPref, weightPair, weightSecDiff, fileParser);
+        SetBased setBased2 = new SetBased(weightMinFilled, weightPref, weightPair, weightSecDiff, fileParser);
+        Fact fact = setBased.runSearch();
+        Fact fact2  = setBased2.runSearch();
+
+        Fact fact3 = setBased.runCross(fact,fact2);
         Output output = new Output();
         output.output(fact.getSchedule(), fact.getValue());
-        Fact fact2 = setBased.runSearch();
+
+
         output.output(fact2.getSchedule(), fact2.getValue());
-       // output.output(fact3.getSchedule(), fact3.getValue());
+        output.output(fact3.getSchedule(), fact3.getValue());
 
 //        OrTree orTree = new OrTree(fileParser);
 //        List<Slot> schedule = orTree.initialize();
