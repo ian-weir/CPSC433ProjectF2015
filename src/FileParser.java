@@ -98,9 +98,13 @@ public class FileParser {
                     } else if (state == 3) {
                         Course course = getNextCourse(currentData);
                         if (course.getClassNum() == 313 && course.getDepartment().equals("CPSC")) {
-                            allLabs.add(new Lab("CPSC", 813, course.getLecSection(), course.getLecSection()));
+                            Lab lab = new Lab("CPSC", 813, course.getLecSection(), course.getLecSection());
+                            lab.setType("LEC");
+                            allLabs.add(lab);
                         } else if (course.getClassNum() == 413 && course.getDepartment().equals("CPSC")) {
-                            allLabs.add(new Lab("CPSC", 913, course.getLecSection(), course.getLecSection()));
+                            Lab lab = new Lab("CPSC", 913, course.getLecSection(), course.getLecSection());
+                            lab.setType("LEC");
+                            allLabs.add(lab);
                         }
                         allCourses.add(course);
                     } else if (state == 4) {
