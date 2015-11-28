@@ -65,10 +65,12 @@ public class Output{
 				System.out.print(" LEC " + course.getLecSection());
 			}
 			if(slot.getCourse() instanceof Lab){
+				if(!(course.getDepartment().equals("CPSC") && (course.getClassNum() == 813 || course.getClassNum() == 913))){
 				String type = ((Lab)course).getType();
 				System.out.print(" " + type + " "  + ((Lab)course).getLabSection() + "      ");
 				if(course.getLecSection().equals("404")){
 					System.out.print("       ");
+				}
 				}
 			}
 			else{
