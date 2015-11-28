@@ -214,7 +214,7 @@ public class FileParser {
     }
 
     private Lab getNextLab(String currentData) { //will return lab
-        String department, classNum, lecSection, tutorialSection;
+        String department, classNum, lecSection, tutorialSection, type;
         startIndex = 0;
         endIndex = 0;
         lecSection = "";
@@ -227,11 +227,14 @@ public class FileParser {
             getNextString(' ', currentData, false); // ignores LEC
             lecSection = getNextString(' ', currentData, false).trim();
         }
-        getNextString(' ', currentData, false); // ignores TUT
+        type = getNextString(' ', currentData, false); // ignores TUT
         tutorialSection = getNextString(' ', currentData, true).trim();
 
         lecSection = (lecSection.isEmpty()) ? "404" : lecSection; //if lecSection isn't set make it 404
-        return new Lab(department, Integer.parseInt(classNum), lecSection, tutorialSection);
+        Lab lab = new Lab(department, Integer.parseInt(classNum), lecSection, tutorialSection);
+        lab.setType(type);
+        
+        return lab;
     }
 
     private Pair<Course, Course> getNotCompatible(String currentData) {

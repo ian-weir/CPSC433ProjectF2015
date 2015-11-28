@@ -269,7 +269,7 @@ public class Constr {
 	//checks if 813 or 913 courses exists first
 	//generates list of classes that can not overlap cpsc813 and cpsc913
 	private void generateSpecialCourseList(){
-		for(Course course: allCourses){
+		for(Course course: allLabs){
 			if(course.getDepartment().equals("CPSC") && course.getClassNum() == 813){
 				containsCPSC813 = true;
 			}

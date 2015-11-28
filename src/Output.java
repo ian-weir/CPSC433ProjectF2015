@@ -65,7 +65,8 @@ public class Output{
 				System.out.print(" LEC " + course.getLecSection());
 			}
 			if(slot.getCourse() instanceof Lab){
-				System.out.print(" LAB " + ((Lab)course).getLabSection() + "      ");
+				String type = ((Lab)course).getType();
+				System.out.print(" " + type + " "  + ((Lab)course).getLabSection() + "      ");
 				if(course.getLecSection().equals("404")){
 					System.out.print("       ");
 				}
