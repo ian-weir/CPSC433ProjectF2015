@@ -17,6 +17,11 @@ public class FileParser {
     private Map<Course, List<Course>> pairs;
     private Map<Course, Slot> partialAssignments;
 
+    private List<String> validCourseMWFTimes;
+    private List<String> validCourseTuThTimes;
+    private List<String> validLabMTuWThTimes;
+    private List<String> validLabFTimes;
+
 
     public FileParser() {
         allCourses = new ArrayList<>();
@@ -28,19 +33,21 @@ public class FileParser {
         preferences = new HashMap<>();
         pairs = new HashMap<>();
         partialAssignments = new HashMap<>();
+        generateCourseAndLabSlotTimes();
     }
 
-    public void setupData(String filename) { //This will get changed to return all our data set up
+    public boolean setupData(String filename) { //This will get changed to return all our data set up
         String currentData;
         InputStreamReader fileReader;
         int state = 0;
         Pair<String, String> slotID;
         Slot slot;
-        Preference preference;
+        Preference preference = null;
         Pair<Course, Course> twoCoursePair;
         Pair<Course, Pair<String, String>> coursePair;
         Course properKey;
         Course properValue;
+        boolean noErrors = true;
 
         try {
             InputStream file = new FileInputStream(filename);
@@ -72,14 +79,29 @@ public class FileParser {
                         slot = getNextSlot(currentData);
                         slot.setIsCourse(true);
                         slotID = new Pair<>(slot.getDay(), slot.getTime());
+                        if (!checkCourseSlot(slot)) {
+                            System.out.println("A Course slot had an invalid Day or Time");
+                            noErrors = false;
+                            break;
+                        }
                         courseSlots.put(slotID, slot);
                     } else if (state == 2) {
                         slot = getNextSlot(currentData);
                         slot.setIsCourse(false);
                         slotID = new Pair<>(slot.getDay(), slot.getTime());
+                        if (!checkLabSlot(slot)) {
+                            System.out.println("A Lab slot had an invalid Day or Time");
+                            noErrors = false;
+                            break;
+                        }
                         labSlots.put(slotID, slot);
                     } else if (state == 3) {
                         Course course = getNextCourse(currentData);
+                        if (course.getClassNum() == 313 && course.getDepartment().equals("CPSC")) {
+                            allLabs.add(new Lab("CPSC", 813, course.getLecSection(), course.getLecSection()));
+                        } else if (course.getClassNum() == 413 && course.getDepartment().equals("CPSC")) {
+                            allLabs.add(new Lab("CPSC", 913, course.getLecSection(), course.getLecSection()));
+                        }
                         allCourses.add(course);
                     } else if (state == 4) {
                         Lab lab = getNextLab(currentData); //add to set of all labs
@@ -115,13 +137,15 @@ public class FileParser {
                         }
                     } else if (state == 7) {
                         preference = getNextPreferences(currentData);
-                        properKey = getProperCourseElement(preference.getCourse());
-                        if (preferences.containsKey(properKey)) {
-                            preferences.get(properKey).add(preference);
-                        } else {
-                            List<Preference> preferenceList = new ArrayList<>();
-                            preferenceList.add(preference);
-                            preferences.put(properKey, preferenceList);
+                        if(preference != null) {
+                            properKey = getProperCourseElement(preference.getCourse());
+                            if (preferences.containsKey(properKey)) {
+                                preferences.get(properKey).add(preference);
+                            } else {
+                                List<Preference> preferenceList = new ArrayList<>();
+                                preferenceList.add(preference);
+                                preferences.put(properKey, preferenceList);
+                            }
                         }
                     } else if (state == 8) {
                         twoCoursePair = getNotCompatible(currentData); // using getNotCompatible because it parses the same way
@@ -144,44 +168,19 @@ public class FileParser {
                     } else if (state == 9) {
                         coursePair = getNextUnwanted(currentData); //using getNextUnwanted because it parses the same way
                         slot = getCorrectSlotType(coursePair);
+                        if (slot == null) {
+                            noErrors = false;
+                            System.out.println("There is no slot at that time for partial assignment");
+                            break;
+                        }
                         partialAssignments.put(getProperCourseElement(coursePair.getKey()), slot);
                     }
                 }
             }
-//            //Printing data is just for testing, this can be removed
-//            for (Pair<String, String> slotIDPair : courseSlots.keySet()) {
-//                Slot slot1 = courseSlots.get(slotIDPair);
-//                System.out.println(slot1.getDay() + " " + slot1.getTime() + " " + slot1.getMaxCapcity() + " " + slot1.getMinCapacity());
-//            }
-//            System.out.println();
-//            for (Pair<String, String> slotIDPair : labSlots.keySet()) {
-//                Slot slot1 = labSlots.get(slotIDPair);
-//                System.out.println(slot1.getDay() + " " + slot1.getTime() + " " + slot1.getMaxCapcity() + " " + slot1.getMinCapacity());
-//            }
-//            System.out.println();
-//            for (Course course : allCourses) {
-//                System.out.println(course.getDepartment() + " " + course.getClassNum() + " " + course.getLecSection());
-//            }
-//            System.out.println();
-//            for (Course course : notCompatible.keySet()) {
-//                List<Course> courses = notCompatible.get(course);
-//                for (Course course2 : courses) {
-//                    System.out.print(course.getDepartment() + " " + course.getClassNum() + " " + course.getLecSection());
-//                    if(course instanceof Lab){
-//                        System.out.print(" " + ((Lab) course).getLabSection());
-//                    }
-//                    System.out.print(" " + course2.getDepartment() + " " + course2.getClassNum() + " " + course2.getLecSection());
-//                    if(course2 instanceof Lab){
-//                        System.out.print(" " + ((Lab) course2).getLabSection());
-//                    }
-//                    System.out.println();
-//                }
-//            }
-//            System.out.println();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        return noErrors;
     }
 
     private Slot getNextSlot(String currentData) { //this will get changed to return a slot
@@ -286,7 +285,7 @@ public class FileParser {
         splitPoint = currentData.indexOf(',');
         firstHalf = currentData.substring(0, splitPoint).trim();
 
-        if(currentData.contains("TUT") || currentData.contains("LAB")){
+        if (currentData.contains("TUT") || currentData.contains("LAB")) {
             course = getNextLab(firstHalf);
         } else {
             course = getNextCourse(firstHalf);
@@ -321,13 +320,22 @@ public class FileParser {
         if (courseSplit.contains("TUT") || courseSplit.contains("LAB")) {
             Lab lab = getNextLab(courseSplit);
             weight = getNextString(',', currentData, true).trim();
-            preference = new Preference(lab, slot, Integer.parseInt(weight));
+            if (!labSlots.containsKey(slot)) {
+                System.out.println("WARNING: The Lab slot " + slot.getKey() + " " + slot.getValue() + " associated with a preference doesn't exist!");
+                preference = null;
+            } else {
+                preference = new Preference(lab, slot, Integer.parseInt(weight));
+            }
         } else {
             Course course = getNextCourse(courseSplit);
             weight = getNextString(',', currentData, true).trim();
-            preference = new Preference(course, slot, Integer.parseInt(weight));
+            if (!courseSlots.containsKey(slot)) {
+                System.out.println("WARNING: The Course slot " + slot.getKey() + " " + slot.getValue() + " associated with a preference doesn't exist!");
+                preference = null;
+            } else {
+                preference = new Preference(course, slot, Integer.parseInt(weight));
+            }
         }
-
         return preference;
     }
 
@@ -341,7 +349,7 @@ public class FileParser {
     }
 
     private Slot getCorrectSlotType(Pair<Course, Pair<String, String>> courseTimePair) {
-        Slot slot;
+        Slot slot = null;
 
         if (courseTimePair.getKey() instanceof Lab) {
             slot = labSlots.get(courseTimePair.getValue());
@@ -391,6 +399,40 @@ public class FileParser {
         return properCourse;
     }
 
+    boolean checkCourseSlot(Slot slot) {
+        boolean valid = true;
+
+        if (slot.getDay().equals("MO")) {
+            if (!validCourseMWFTimes.contains(slot.getTime())) {
+                valid = false;
+            }
+        } else if (slot.getDay().equals("TU")) {
+            if (!validCourseTuThTimes.contains(slot.getTime())) {
+                valid = false;
+            }
+        } else {
+            valid = false;
+        }
+        return valid;
+    }
+
+    boolean checkLabSlot(Slot slot) {
+        boolean valid = true;
+
+        if (slot.getDay().equals("MO") || slot.getDay().equals("TU")) {
+            if (!validLabMTuWThTimes.contains(slot.getTime())) {
+                valid = false;
+            }
+        } else if (slot.getDay().equals("FR")) {
+            if (!validLabFTimes.contains(slot.getTime())) {
+                valid = false;
+            }
+        } else {
+            valid = false;
+        }
+        return valid;
+    }
+
 
     public List<Course> getAllCourses() {
         return allCourses;
@@ -428,4 +470,56 @@ public class FileParser {
         return partialAssignments;
     }
 
+    private void generateCourseAndLabSlotTimes() {
+        validCourseMWFTimes = new ArrayList<>();
+        validCourseTuThTimes = new ArrayList<>();
+        validLabMTuWThTimes = new ArrayList<>();
+        validLabFTimes = new ArrayList<>();
+
+        validCourseMWFTimes.add("8:00");
+        validCourseMWFTimes.add("9:00");
+        validCourseMWFTimes.add("10:00");
+        validCourseMWFTimes.add("11:00");
+        validCourseMWFTimes.add("12:00");
+        validCourseMWFTimes.add("13:00");
+        validCourseMWFTimes.add("14:00");
+        validCourseMWFTimes.add("15:00");
+        validCourseMWFTimes.add("16:00");
+        validCourseMWFTimes.add("17:00");
+        validCourseMWFTimes.add("18:00");
+        validCourseMWFTimes.add("19:00");
+        validCourseMWFTimes.add("20:00");
+        validCourseMWFTimes.add("21:00");
+
+        validCourseTuThTimes.add("8:00");
+        validCourseTuThTimes.add("9:30");
+        validCourseTuThTimes.add("11:00");
+        validCourseTuThTimes.add("12:30");
+        validCourseTuThTimes.add("14:00");
+        validCourseTuThTimes.add("15:30");
+        validCourseTuThTimes.add("17:00");
+        validCourseTuThTimes.add("18:30");
+
+        validLabMTuWThTimes.add("8:00");
+        validLabMTuWThTimes.add("9:00");
+        validLabMTuWThTimes.add("10:00");
+        validLabMTuWThTimes.add("11:00");
+        validLabMTuWThTimes.add("12:00");
+        validLabMTuWThTimes.add("13:00");
+        validLabMTuWThTimes.add("14:00");
+        validLabMTuWThTimes.add("15:00");
+        validLabMTuWThTimes.add("16:00");
+        validLabMTuWThTimes.add("17:00");
+        validLabMTuWThTimes.add("18:00");
+        validLabMTuWThTimes.add("19:00");
+        validLabMTuWThTimes.add("20:00");
+        validLabMTuWThTimes.add("21:00");
+
+        validLabFTimes.add("8:00");
+        validLabFTimes.add("10:00");
+        validLabFTimes.add("12:00");
+        validLabFTimes.add("14:00");
+        validLabFTimes.add("16:00");
+        validLabFTimes.add("18:00");
+    }
 }
