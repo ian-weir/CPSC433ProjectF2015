@@ -23,6 +23,29 @@ public class SetBased {
         this.fileParser = fileParser;
     }
 
+ /*   public Fact runCross(Fact fact1, Fact fact2){
+        Fact newFact = new Fact();
+        List<Slot> newSchedule;
+        int currentGeneration = 1;
+        int currentPopulation;
+        newSchedule = orTree.runCrossover(fact1.getSchedule(), fact2.getSchedule());
+        if(newSchedule != null)
+        {
+            facts.add(new Fact(newSchedule, fWert(newSchedule)));
+            orTree = new OrTree(fileParser);
+        }
+        newFact = facts.get(0);
+        for(Fact fact : facts){
+            newFact = (fact.getValue() < newFact.getValue() ? fact : newFact);
+        }
+
+
+        return newFact;
+    }
+
+
+*/
+
     public Fact runSearch() {
         Fact bestFact = new Fact();
         List<Slot> newSchedule;
@@ -51,9 +74,9 @@ public class SetBased {
         //Otherwise select 2 facts to use as parents
         //
         bestFact = facts.get(0);
-        for(Fact fact : facts){
-            bestFact = (fact.getValue() < bestFact.getValue() ? fact : bestFact);
-        }
+        //for(Fact fact : facts){
+         //   bestFact = (fact.getValue() < bestFact.getValue() ? fact : bestFact);
+       // }
 
 
         return bestFact;

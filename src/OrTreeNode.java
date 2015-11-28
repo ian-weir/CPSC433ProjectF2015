@@ -34,14 +34,28 @@ public class OrTreeNode {
         solved = 1;
     }
 
-    public void altern(Course course, boolean isGenetic, Constr hardConstraints) {
+    public void altern(Slot courseSlot, boolean isGenetic, Constr hardConstraints) {
 
         Slot aSlot;
+        Course course = courseSlot.getCourse();
         List<Slot> childSchedule;
         OrTreeNode child = new OrTreeNode();
         children = new ArrayList<>();
 
-
+        if(isGenetic)
+        {
+            if(hardConstraints.constr(schedule, courseSlot))
+            {
+                List<Slot> childSched = new ArrayList<>();
+                for (Slot slot : schedule) {
+                    childSched.add(new Slot(slot));
+                }
+                childSched.add(courseSlot);
+                child = new OrTreeNode(childSched);
+                children.add(children.size(), child);
+            }
+        }
+        else
         for (int index = 0; index < schedule.size(); index++) {
             //  System.out.println("Sched Size: " + schedule.size());
 

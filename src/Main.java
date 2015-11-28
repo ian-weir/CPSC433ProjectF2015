@@ -38,8 +38,13 @@ public class Main {
 
         SetBased setBased = new SetBased(weightMinFilled, weightPref, weightPair, weightSecDiff, fileParser);
         Fact fact = setBased.runSearch();
+
+     //   Fact fact3 = setBased.runCross(fact,fact2);
         Output output = new Output();
         output.output(fact.getSchedule(), fact.getValue());
+        Fact fact2 = setBased.runSearch();
+        output.output(fact2.getSchedule(), fact2.getValue());
+       // output.output(fact3.getSchedule(), fact3.getValue());
 
 //        OrTree orTree = new OrTree(fileParser);
 //        List<Slot> schedule = orTree.initialize();
