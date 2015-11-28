@@ -24,23 +24,14 @@ public class SetBased {
     }
 
     public Fact runCross(Fact fact1, Fact fact2){
-        Fact newFact = new Fact();
         List<Slot> newSchedule;
-        int currentGeneration = 1;
-        int currentPopulation;
         newSchedule = orTree.runCrossover(fact1.getSchedule(), fact2.getSchedule());
         if(newSchedule != null)
         {
-            facts.add(new Fact(newSchedule, fWert(newSchedule)));
             orTree = new OrTree(fileParser);
         }
-        newFact = facts.get(0);
-        for(Fact fact : facts){
-            newFact = (fact.getValue() < newFact.getValue() ? fact : newFact);
-        }
 
-
-        return newFact;
+        return new Fact(newSchedule, fWert(newSchedule));
     }
 
 
@@ -67,8 +58,7 @@ public class SetBased {
                 currentGeneration++;
             } else {
                 orTree = new OrTree(fileParser);
-                newSchedule = orTree.runCrossover(fSelect(), fSelect());
-                facts.add(new Fact(newSchedule, fWert(newSchedule)));
+                facts.add(runCross(fSelect(), fSelect()));
                 for(Fact fact : facts){
                     bestFact = (fact.getValue() < bestFact.getValue() ? fact : bestFact);
                 }
@@ -106,25 +96,25 @@ public class SetBased {
 
         return value;
     }
-    private List<Slot> fSelect(){
+    private Fact fSelect(){
         int totalValue = findAllWeights();
         int randomInt;
         int lowerBound, upperBound;
         lowerBound = 0;
-        List<Slot> selectedSchedule = new ArrayList<>();
+        Fact selectedFact = null;
 
         Random randomGenerator = new Random();
         randomInt = randomGenerator.nextInt(totalValue);
 
         for(Fact fact: facts){
             upperBound = lowerBound + fact.getSelectionChance();
-            if(randomInt > lowerBound && randomInt <= upperBound){
-                selectedSchedule = fact.getSchedule();
+            if(randomInt >= lowerBound && randomInt < upperBound){
+                selectedFact = fact;
                 break;
             }
             lowerBound = upperBound;
         }
-        return selectedSchedule; //change this once method is fully implemented
+        return selectedFact; //change this once method is fully implemented
     }
 
     private void cull(){

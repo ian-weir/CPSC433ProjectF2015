@@ -47,33 +47,5 @@ public class Main {
 //        Fact fact2 = setBased.runSearch();
 //        output.output(fact2.getSchedule(), fact2.getValue());
        // output.output(fact3.getSchedule(), fact3.getValue());
-
-//        OrTree orTree = new OrTree(fileParser);
-//        List<Slot> schedule = orTree.initialize();
-        // OrTree test = new OrTree();
-        //test.run();
-//        SetBased setBased = new SetBased(weightMinFilled, weightPref, weightPair, weightSecDiff, fileParser);
-//        setBased.runSearch();
-//        SetBased search = new SetBased(weightMinFilled, weightPref, weightPair, weightSecDiff, fileParser);
-//        Fact answer = search.runSearch();
-        //   OrTree orTree = new OrTree(fileParser);
-        //    List<Slot> schedule = orTree.initialize();
-        //   List<Slot> test =  new ArrayList<>();
-        //    List<Slot> test2 =  new ArrayList<>();
-      //  output.output(schedule, 0);
-     //   test = orTree.crossover(schedule, test2);
-       
-        //List<Slot> schedule = answer.getSchedule();
-//        if(schedule == null)
-//        {
-//        	System.out.print("no schedule(is this suppose to be possible for us?"); // TODO schedule comes back as null not sure why atm!
-//        }
-//        else
-//        {
-//        	int evalTot = eval.evalTot(schedule, fileParser);
-//        	output.output(schedule, evalTot);
-//        	output.output(schedule, evalTot);
-//        }
     }
-
 }
