@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class OrTree {
 
@@ -23,51 +20,106 @@ public class OrTree {
         return solution;
     }
 
-    public List<Slot> crossover(List<Slot> parentOne, List<Slot> parentTwo) //TODO in the works
+    public List<Slot> runCrossover(List<Slot> parentOne, List<Slot> parentTwo)
     {
+        OrTreeNode head = new OrTreeNode();
+        List<Slot> tempCopy = new ArrayList<>();
+        for (Slot slot : parentOne)
+            tempCopy.add(new Slot(slot));
+
+        crossover(head,parentOne,parentTwo, tempCopy);
+        return solution;
+    }
+
+    private boolean crossover(OrTreeNode head, List<Slot> parentOne, List<Slot> parentTwo, List<Slot> localSched) //TODO in the works
+    {
+
         List<Slot> newFact = new ArrayList<>();
-        Eval eval = new Eval();
-        int evalOne = eval.evalTot(parentOne, fileParser);
-        int evalTwo = eval.evalTot(parentTwo, fileParser);
         Random randomGenerator = new Random();   // Need to choose a random child node to expand
         int randomInt = randomGenerator.nextInt();
-        	randomInt = randomInt % 2;
-        
-       
-        	if(( evalOne == evalTwo ) && evalOne == 0)
-        	{
-        		newFact = parentOne;
-        	}
-        	else if(evalOne > evalTwo)
-        	{
-        		newFact = parentTwo;		
-        	}
-        	else if(evalTwo > evalOne)
-        	{
-        		newFact = parentOne;
-        	}
-        	else
-        	{
-        		if(randomInt == 1)
-        		{
-        			newFact = parentOne;
-        		}
-        		else
-        		{
-        			newFact = parentTwo;
-        		}
-        		
-        	}
-       
-        return newFact;
-    }
-    /*Confused here where do we call crossover?
-     while(crossIndex + 1 < head.getChildren().size() )
-            {
-            	crossover(head.getChildren().get(crossIndex).getSchedule(), head.getChildren().get(crossIndex + 1).getSchedule());
-            	crossIndex++;
+           	randomInt = randomInt % 2;
+        Slot slotRemoved;//= new Slot();
+        int index;
+        boolean isSolved = false;
+
+        if(localSched.size() == 0)
+          return true;
+
+        index = findIndexCounterpart(localSched.get(0), parentTwo);
+
+        if(localSched.get(0).sameSlot(parentTwo.get(index)))
+            head.altern(localSched.get(0).getCourse(), true, hardConstraints);
+        else {
+            if (randomInt == 0) {
+                head.altern(localSched.get(0).getCourse(), true, hardConstraints);
+                if (hasNoChildren(head))
+                    head.altern(parentOne.get(index).getCourse(), true, hardConstraints);
+
+            } else {
+                head.altern(parentTwo.get(index).getCourse(), true, hardConstraints);
+                if(hasNoChildren(head))
+                    head.altern(localSched.get(0).getCourse(), true, hardConstraints);
             }
-     */
+        }
+        if((head.getChildren() == null || head.getChildren().isEmpty()) && !localSched.isEmpty())
+        {
+            if(randomInt == 0)
+                head.altern(localSched.get(0).getCourse(), false, hardConstraints);
+            else
+                head.altern(parentTwo.get(index).getCourse(), false, hardConstraints);
+        }
+
+        slotRemoved = localSched.get(0);
+        localSched.remove(0);
+        if(head.getChildren().size() == 1)
+            isSolved = crossover(head.getChildren().get(0),parentOne,parentTwo,localSched);
+       else{
+            randomInt = randomGenerator.nextInt();
+            randomInt = randomInt % head.getChildren().size();
+            int i = 0;
+            while(!isSolved || i < head.getChildren().size())
+            {
+                isSolved = crossover(head.getChildren().get(randomInt),parentOne,parentTwo,localSched);
+                randomInt++;
+                if(randomInt == head.getChildren().size())
+                    randomInt = 0;
+                i++;
+            }
+        }
+
+        if(!isSolved)
+            localSched.add(slotRemoved);
+
+        return isSolved;
+    }
+    private boolean hasNoChildren(OrTreeNode head)
+    {
+        if(head.getChildren().size() == 0)
+            return true;
+        else
+            return false;
+    }
+    private int findIndexCounterpart(Slot desiredSlot, List<Slot> schedTwo)
+    {
+        Course target = desiredSlot.getCourse();
+        int index = -1;
+
+        for(int i = 0; i < schedTwo.size(); i++)
+        {
+            if(desiredSlot.sameSlot(schedTwo.get(i)))
+            {
+                index = i;
+                break;
+            }
+            else if(schedTwo.get(i).getCourse().equals(target))
+            {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+
 
     public List<Slot> getSolution() {
         return solution;
@@ -110,7 +162,7 @@ public class OrTree {
         
         if(head.getChildren() != null)
         {
-        	while((crossIndex < head.getChildren().size()) && (crossIndex + 1 < head.getChildren().size()) )
+     /*   	while((crossIndex < head.getChildren().size()) && (crossIndex + 1 < head.getChildren().size()) )
         	{
         		
         		List<Slot> parentOne = head.getChildren().get(crossIndexBest).getSchedule();
@@ -118,17 +170,17 @@ public class OrTree {
         		List <Slot> temp;
         		if(parentOne != null && parentTwo != null)
         		{
-        			temp = crossover(parentOne, parentTwo);
+        			//temp = crossover(parentOne, parentTwo);
         		
-        			if(temp == parentTwo)
+        			//if(temp == parentTwo)
         			{
         				crossIndexBest = crossIndex;
         			}
         			crossIndex++;
-        		}
+        		}*/
         		
         		
-        	}
+        //	}
         }
         if(solved)
         	return solved;
