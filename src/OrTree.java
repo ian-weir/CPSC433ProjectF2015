@@ -192,7 +192,7 @@ public class OrTree {
 
         if(localSched == null)
             return true;
-        }
+
 
         if(localSched.size() == 0) {
             solution = head.getSchedule();
@@ -228,6 +228,8 @@ public class OrTree {
         localSched.remove(0);
         if(head.getChildren().size() == 1)
             isSolved = crossover(head.getChildren().get(0),parentOne,parentTwo,localSched);
+        else if(head.getChildren().size()== 0)
+            isSolved = crossover(head,parentOne,parentTwo,localSched);
         else{
             randomInt = randomGenerator.nextInt();
             while (randomInt < 1)
