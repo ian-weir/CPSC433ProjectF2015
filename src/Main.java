@@ -17,7 +17,7 @@ public class Main {
 //        System.out.println("Reading from file " + filename);
 //        fileParser.setupData(filename);
 
-        fileParser.setupData("tester.txt");
+        fileParser.setupData("test.txt");
 
 
         if (args.length == 4) {

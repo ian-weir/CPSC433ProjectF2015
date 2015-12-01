@@ -49,7 +49,7 @@ public class OrTreeNode {
                 List<Slot> childSched = deepCopy();
                 childSched.add(courseSlot);
                 child = new OrTreeNode(childSched);
-                children.add(children.size(), child);
+                children.add(child);
             }
         }
         else {

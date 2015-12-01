@@ -190,14 +190,15 @@ public class OrTree {
         int index;
         boolean isSolved = false;
 
-        if(localSched == null) {
-            solution = head.getSchedule();
+        if(localSched == null)
             return true;
         }
+
         if(localSched.size() == 0) {
             solution = head.getSchedule();
             return true;
         }
+
 
         index = findIndexCounterpart(localSched.get(0), parentTwo);
 
@@ -232,9 +233,9 @@ public class OrTree {
             while (randomInt < 1)
              randomInt = randomGenerator.nextInt();
 
-            randomInt = (head.getChildren().size() == 0 ? randomInt = 0 : randomInt % head.getChildren().size()) ;
+            randomInt = randomInt % head.getChildren().size();
             int i = 0;
-            while(!isSolved && i < head.getChildren().size())
+            while(!isSolved || i < head.getChildren().size())
             {
                 isSolved = crossover(head.getChildren().get(randomInt),parentOne,parentTwo,localSched);
                 randomInt++;
@@ -261,7 +262,7 @@ public class OrTree {
     private int findIndexCounterpart(Slot desiredSlot, List<Slot> schedTwo)
     {
         Course target = desiredSlot.getCourse();
-        int index = 0;
+        int index = -1;
 
         for(int i = 0; i < schedTwo.size(); i++)
         {
