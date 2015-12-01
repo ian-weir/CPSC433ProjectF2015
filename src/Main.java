@@ -37,11 +37,11 @@ public class Main {
 
 
         SetBased setBased = new SetBased(weightMinFilled, weightPref, weightPair, weightSecDiff, fileParser);
-        SetBased setBased2 = new SetBased(weightMinFilled, weightPref, weightPair, weightSecDiff, fileParser);
+//        SetBased setBased2 = new SetBased(weightMinFilled, weightPref, weightPair, weightSecDiff, fileParser);
         Fact fact = setBased.runSearch();
-        Fact fact2  = setBased2.runSearch();
-
-        Fact fact3 = setBased.runCross(fact,fact2);
+//        Fact fact2  = setBased2.runSearch();
+//
+//        Fact fact3 = setBased.runCross(fact,fact2);
         Output output = new Output();
         output.output(fact.getSchedule(), fact.getValue());
 //        Fact fact2 = setBased.runSearch();

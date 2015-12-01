@@ -29,9 +29,11 @@ public class SetBased {
         if(newSchedule != null)
         {
             orTree = new OrTree(fileParser);
-        }
+            return new Fact(newSchedule, fWert(newSchedule));
+        } else {
 
-        return new Fact(newSchedule, fWert(newSchedule));
+            return null;
+        }
     }
 
 
@@ -51,6 +53,8 @@ public class SetBased {
             orTree = new OrTree(fileParser);
             }
         }
+//        facts.add(runCross(facts.get(0), facts.get(1)));
+//        bestFact = runCross(facts.get(0), facts.get(1));
         bestFact = facts.get(0);
         while(currentGeneration < maxGeneration && bestFact.getValue() != 0){
             if(currentPopulation == populationMax){
@@ -59,6 +63,7 @@ public class SetBased {
             } else {
                 orTree = new OrTree(fileParser);
                 facts.add(runCross(fSelect(), fSelect()));
+                currentPopulation ++;
                 for(Fact fact : facts){
                     bestFact = (fact.getValue() < bestFact.getValue() ? fact : bestFact);
                 }
@@ -69,7 +74,6 @@ public class SetBased {
         //If size of facts is larger than X cull
         //Otherwise select 2 facts to use as parents
         //
-        bestFact = facts.get(0);
         for(Fact fact : facts){
             bestFact = (fact.getValue() < bestFact.getValue() ? fact : bestFact);
         }

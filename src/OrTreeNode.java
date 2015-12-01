@@ -46,33 +46,30 @@ public class OrTreeNode {
         {
             if(hardConstraints.constr(schedule, courseSlot))
             {
-                List<Slot> childSched = new ArrayList<>();
-                for (Slot slot : schedule) {
-                    childSched.add(new Slot(slot));
-                }
+                List<Slot> childSched = deepCopy();
                 childSched.add(courseSlot);
                 child = new OrTreeNode(childSched);
                 children.add(children.size(), child);
             }
         }
-        else
-        for (int index = 0; index < schedule.size(); index++) {
-            //  System.out.println("Sched Size: " + schedule.size());
+        else {
+            for (int index = 0; index < schedule.size(); index++) {
+                //  System.out.println("Sched Size: " + schedule.size());
 
-            if ((course instanceof Lab && !schedule.get(index).isCourse()) || (!(course instanceof Lab) && schedule.get(index).isCourse())) {
+                if ((course instanceof Lab && !schedule.get(index).isCourse()) || (!(course instanceof Lab) && schedule.get(index).isCourse())) {
 
-                aSlot = new Slot(schedule.get(index));
+                    aSlot = new Slot(schedule.get(index));
 
-                if (aSlot.getCourse() == null) {
-                    aSlot.setCourse(course);
-                    if(hardConstraints.constr(schedule, aSlot))
-                    {
+                    if (aSlot.getCourse() == null) {
+                        aSlot.setCourse(course);
+                        if (hardConstraints.constr(schedule, aSlot)) {
 
-                    child = new OrTreeNode(createChild(index, course));
-                    children.add(children.size(), child);
-                    if (isGenetic)
-                        break;
-                }
+                            child = new OrTreeNode(createChild(index, course));
+                            children.add(children.size(), child);
+                            if (isGenetic)
+                                break;
+                        }
+                    }
                 }
             }
         }
