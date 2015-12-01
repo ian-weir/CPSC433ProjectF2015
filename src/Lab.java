@@ -13,6 +13,10 @@ public class Lab extends Course{
         type = lab.getType();
     }
 
+    public boolean sameLab (Lab lab){
+        return this.isSame(lab) && labSection.equals(lab.getLabSection());
+    }
+
     public String getLabSection() {
         return labSection;
     }

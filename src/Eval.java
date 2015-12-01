@@ -37,25 +37,20 @@ public class Eval {
 
         for (Slot slot : schedule) {
             course = slot.getCourse();
-            if (preferenceMap.containsKey(course)) {
+            course = getProperKey(preferenceMap, course);
+            if (course != null) {
                 preferenceList = preferenceMap.get(course);
                 currentPenalty = 0;
                 for (Preference preference : preferenceList) {
                     if (course instanceof Lab) {
                         preferenceSlot = labSlots.get(preference.getSlotId());
-                        if (!slot.equals(preferenceSlot)) {
+                        if (!slot.sameSlot(preferenceSlot)) {
                             currentPenalty += preference.getWeight();
-                        } else {
-                            currentPenalty = 0;
-                            break;
                         }
                     } else {
                         preferenceSlot = courseSlots.get(preference.getSlotId());
-                        if (!slot.equals(preferenceSlot)) {
+                        if (slot.sameSlot(preferenceSlot)) {
                             currentPenalty += preference.getWeight();
-                        } else {
-                            currentPenalty = 0;
-                            break;
                         }
                     }
                 }
@@ -95,7 +90,7 @@ public class Eval {
                 }
             }
         }
-        return penalty;
+        return penalty / 2;
     }
 
     public int secDiff(List<Slot> schedule) {
@@ -106,17 +101,18 @@ public class Eval {
 
         for (Slot slot : schedule) {
             Course slotCourse = slot.getCourse();
-            compareIndex = slotIndex + 1;
-            if(slot.getTime().equals(schedule.get(compareIndex).getTime()) && slot.getCourse().equals(schedule.get(compareIndex).getCourse())) {
-                compareCourse = schedule.get(compareIndex).getCourse();
-                if (!(slotCourse instanceof Lab) && !(compareCourse instanceof Lab)) {
-                    if (slotCourse.getClassNum() == compareCourse.getClassNum()) {
-                        penalty++;
+            for (Slot compareSlot : schedule) {
+                if (slot.sameSlot(compareSlot) && slot.getCourse().getDepartment().equals("CPSC")) {
+                    compareCourse = compareSlot.getCourse();
+                    if (!(slotCourse instanceof Lab) && !(compareCourse instanceof Lab)) {
+                        if (slotCourse.getClassNum() == compareCourse.getClassNum()) {
+                            penalty++;
+                        }
                     }
                 }
             }
         }
-        return penalty;
+        return penalty / 2;
     }
 
     //gets the index of first slot for specific day/time
@@ -132,4 +128,21 @@ public class Eval {
 
         return index;
     }
+
+    private Course getProperKey(Map<Course, List<Preference>> preferenceMap, Course sameCourse){
+        Course properCourse = null;
+
+        for(Course course : preferenceMap.keySet()){
+            if((!(sameCourse instanceof Lab) && !(course instanceof Lab)) && sameCourse.isSame(course)){
+                properCourse = course;
+                break;
+            } else if((sameCourse instanceof Lab) && (course instanceof Lab) && ((Lab) course).sameLab((Lab) sameCourse)){
+                properCourse = course;
+                break;
+            }
+        }
+        return properCourse;
+    }
+
+
 }
