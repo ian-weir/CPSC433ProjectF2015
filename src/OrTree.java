@@ -185,6 +185,9 @@ public class OrTree {
         List<Slot> newFact = new ArrayList<>();
         Random randomGenerator = new Random();   // Need to choose a random child node to expand
         int randomInt = randomGenerator.nextInt();
+        while(randomInt < 1){
+            randomInt = randomGenerator.nextInt();
+        }
         randomInt = randomInt % 2;
         Slot slotRemoved;//= new Slot();
         int index;
