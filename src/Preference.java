@@ -1,4 +1,3 @@
-import javafx.util.Pair;
 
 public class Preference {
     private Course course;
