@@ -36,9 +36,9 @@ public class OrTreeNode {
 
     public void altern(Slot courseSlot, boolean isGenetic, Constr hardConstraints) {
 
-        Slot aSlot;
+        Slot aSlot = new Slot(courseSlot);
         Course course = courseSlot.getCourse();
-        List<Slot> childSchedule;
+       // List<Slot> childSchedule;
         OrTreeNode child = new OrTreeNode();
         children = new ArrayList<>();
 
@@ -62,22 +62,42 @@ public class OrTreeNode {
 
                     if (aSlot.getCourse() == null) {
                         aSlot.setCourse(course);
+                       // if(!slotDoubled(schedule, aSlot))
                         if (hardConstraints.constr(schedule, aSlot)) {
 
                             child = new OrTreeNode(createChild(index, course));
                             children.add(children.size(), child);
-                            if (isGenetic)
-                                break;
+                         //   if (isGenetic)
+                           //     break;
                         }
                     }
                 }
             }
         }
     }
+    private boolean slotDoubled(List<Slot> schedule, Slot wantToAdd)
+    {
+        boolean alreadyExists = false;
+        for(int i = 0; i < schedule.size(); i++)
+        {
+            if(schedule.get(i).sameSlot(wantToAdd))
+                if(schedule.get(i).getCourse() != null)
+                if(schedule.get(i).getCourse().isSame(wantToAdd.getCourse()))
+                    alreadyExists = true;
+        }
+            return alreadyExists;
+    }
 
     private List<Slot> createChild(int index, Course course) {
         List<Slot> tempCopy = deepCopy();  // If 2 lists are chaning at same time this is the problem -> Ian's fault
         Slot item;
+
+        if(needToAddSlot(index, schedule))
+        {
+            item = new Slot(tempCopy.get(index));
+            item.setCourse(null);
+            tempCopy.add(index,item);
+        }
 
         if (course instanceof Lab) {
             tempCopy.get(index).setCourse(course);
@@ -88,23 +108,6 @@ public class OrTreeNode {
             tempCopy.get(index).setCourse(course);
            // tempCopy.get(index).setIsCourse(true);
         }
-
-      /*  int max = tempCopy.get(index).getMaxCapcity();
-        int counter = 0;
-
-
-        while (counter < max && counter < schedule.size() && (schedule.get(index).e))
-             counter++;
-
-        if(counter < max)
-            tempCopy.add(index, item);
-*/
-    if(needToAddSlot(index, schedule))
-    {
-        item = new Slot(tempCopy.get(index));
-        item.setCourse(null);
-        tempCopy.add(index,item);
-    }
 
         return tempCopy;
     }

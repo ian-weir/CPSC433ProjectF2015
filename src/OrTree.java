@@ -199,11 +199,14 @@ public class OrTree {
         slotRemoved = localSched.get(0);
         localSched.remove(0);
 
+        head.getSchedule().remove(slotRemoved);
+
 //********************************************************************************
         //CASE 1: SAME
         index = findIndexCounterpart(slotRemoved, parentTwo);
 
         if (slotRemoved.sameSlot(parentTwo.get(index))) {
+            System.out.println("Case 1       "  + localSched.size() + "Class removed: " + slotRemoved.getCourse().getDepartment() + " " + slotRemoved.getCourse().getClassNum() +" " + slotRemoved.getCourse().getLecSection() );
             head.altern(slotRemoved, true, hardConstraints);
             if (head.getChildren() == null || head.getChildren().size() == 0)
                 notAdded = true;
@@ -213,15 +216,24 @@ public class OrTree {
 // **********************************************************************************
         // Case 2: DIFFERENT
         else {
+            System.out.println("Case 2       "  + localSched.size() + "Class removed: " + slotRemoved.getCourse().getDepartment() + " " + slotRemoved.getCourse().getClassNum()+ " " + slotRemoved.getCourse().getLecSection() );
             if (randomInt == 0) {
                 head.altern(slotRemoved, true, hardConstraints);
-                if (hasNoChildren(head))
-                    head.altern(parentOne.get(index), true, hardConstraints);
+                if (hasNoChildren(head)) {
+                    notAdded= true;
+                    //    System.out.println("Not added Case 1");
+                //    head.getSchedule().remove(parentOne.get(index));
+                 //   head.altern(parentOne.get(index), true, hardConstraints);
+                }
 
             } else {
+                head.getSchedule().remove(parentOne.get(index));
                 head.altern(parentTwo.get(index), true, hardConstraints);
-                if (hasNoChildren(head))
-                    head.altern(slotRemoved, true, hardConstraints);
+                if (hasNoChildren(head)) {
+                    notAdded = true;
+                    //   System.out.println("Not added Case 2");
+                  //  head.altern(slotRemoved, true, hardConstraints);
+                }
             }
 
             if (head.getChildren() == null || head.getChildren().size() == 0)
@@ -231,14 +243,23 @@ public class OrTree {
         }
 //**********************************************************************************
         // CASE 3:  RANDOM
-        if (notAdded) {              // if no solution has been found need to create and check the other children of the current node
+        if (notAdded) {// if no solution has been found need to create and check the other children of the current node
+            System.out.println("Case 3    " + localSched.size() + "Class removed: " + slotRemoved.getCourse().getDepartment() + " " + slotRemoved.getCourse().getClassNum() +" " + slotRemoved.getCourse().getLecSection() );
             localSched.add(slotRemoved);
+            head.getSchedule().remove(slotRemoved);
             isSolved = genAllPossibleNodes(head, parentOne, parentTwo, localSched);
         }
         if(!notAdded && !isSolved) {
+            System.out.println("Case 4     "  + localSched.size() + "Class Added: " + slotRemoved.getCourse().getDepartment() + " " + slotRemoved.getCourse().getClassNum() + " " + slotRemoved.getCourse().getLecSection());
             localSched.add(slotRemoved);
+            head.getSchedule().remove(slotRemoved);
+            head.getChildren().clear();
             isSolved = genAllPossibleNodes(head, parentOne, parentTwo, localSched);
         }
+        if(isSolved)
+        System.out.println("Return True");
+        else
+            System.out.println("Return False");
         return isSolved;
     }
 
@@ -271,8 +292,10 @@ public class OrTree {
 
             randomInt++;
         }
-        if(!isSolved)
+        if(!isSolved) {
             slotToAdd.add(classToAdd);
+            head.getChildren().remove(slotToAdd);// = null;
+        }
         return isSolved;
     }
 
@@ -292,7 +315,7 @@ public class OrTree {
 
         for(int i = 0; i < schedTwo.size(); i++)
         {
-            if(desiredSlot.sameSlot(schedTwo.get(i)))
+            if(desiredSlot.sameSlot(schedTwo.get(i)) && desiredSlot.getCourse().isSame(schedTwo.get(i).getCourse()))
             {
                 index = i;
                 break;
