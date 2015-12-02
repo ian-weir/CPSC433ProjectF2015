@@ -21,9 +21,9 @@ public class SetBased {
         this.fileParser = fileParser;
     }
 
-    public Fact runCross(Fact fact1, Fact fact2) {
+    public Fact runCross(Fact fact1, Fact fact2, FileParser fileParser) {
         List<Slot> newSchedule;
-        newSchedule = orTree.runCrossover(fact1.getSchedule(), fact2.getSchedule());
+        newSchedule = orTree.runCrossover(fact1.getSchedule(), fact2.getSchedule(), fileParser);
         if (newSchedule != null) {
             orTree = new OrTree(fileParser);
             return new Fact(newSchedule, fWert(newSchedule));
@@ -58,7 +58,7 @@ public class SetBased {
                 currentGeneration++;
             } else {
                 orTree = new OrTree(fileParser);
-                Fact newFact = runCross(fSelect(), fSelect());
+                Fact newFact = runCross(fSelect(), fSelect(), fileParser);
                 if (newFact.getSchedule() != null) {
                     facts.add(newFact);
                 }

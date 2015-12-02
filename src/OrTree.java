@@ -15,8 +15,6 @@ public class OrTree {
     }
 
     public List<Slot> initialize() {
-        //create blank sched
-        //assign to head
         generateTree(new OrTreeNode(createBlankSchedule(fileParser)), deepCopyCourses(fileParser.getAllCourses()), deepCopyLabs(fileParser.getAllLabs()));
         stripEmptySlots();
         return solution;
@@ -32,7 +30,7 @@ public class OrTree {
         Course course_added = null;
         Lab lab_added = null;
         boolean solved = false;
-        Slot fakeSlot = new Slot("X","X",1,1);
+        Slot fakeSlot = new Slot("X", "X", 1, 1);
 
         if (head.getSolved() == 0)  // Base Case 1 Not handled
             return false;
@@ -47,14 +45,12 @@ public class OrTree {
             course.remove(0);                                        // remove it as it "should not" be readded unless backtracking
             fakeSlot.setCourse(course_added);
             head.altern(fakeSlot, false, hardConstraints);    // generate all the children with that class now assigned to a slot
-          }
-        else if (labs != null && !labs.isEmpty()) {  // Add the labs to the schedule when all the classes are assigned
+        } else if (labs != null && !labs.isEmpty()) {  // Add the labs to the schedule when all the classes are assigned
             lab_added = labs.get(0);                           // get the first lab in the list
             labs.remove(0);                                    //remove it as it "should not" be readded unless backtracking
             fakeSlot.setCourse(lab_added);
             head.altern(fakeSlot, false, hardConstraints);    //enerate all the children with that class now assigned to a slot
-          }
-        else {                              // If there are no more classes or labs to assign then we are done
+        } else {                              // If there are no more classes or labs to assign then we are done
             head.setSolvedToTrue();
             solution = head.getSchedule();
         }
@@ -149,31 +145,31 @@ public class OrTree {
         return solution;
     }
 
-    private List<Course> deepCopyCourses(List<Course> courses){
+    private List<Course> deepCopyCourses(List<Course> courses) {
         List<Course> deepCopyCourses = new ArrayList<>();
-        for(Course course : courses){
+        for (Course course : courses) {
             deepCopyCourses.add(new Course(course));
         }
         return deepCopyCourses;
     }
-    private List<Lab> deepCopyLabs(List<Lab> labs){
+
+    private List<Lab> deepCopyLabs(List<Lab> labs) {
         List<Lab> deepCopyLabs = new ArrayList<>();
-        for(Lab lab : labs){
+        for (Lab lab : labs) {
             deepCopyLabs.add(new Lab(lab));
         }
         return deepCopyLabs;
     }
 
 
-    public List<Slot> runCrossover(List<Slot> parentOne, List<Slot> parentTwo)
-    {
+    public List<Slot> runCrossover(List<Slot> parentOne, List<Slot> parentTwo, FileParser fileParser) {
         //OrTreeNode head = new OrTreeNode();
         List<Slot> tempCopy = new ArrayList<>();
         for (Slot slot : parentOne)
             tempCopy.add(new Slot(slot));
 
-        crossover(new OrTreeNode(createBlankSchedule(fileParser)),parentOne,parentTwo, tempCopy);
-        if(solution != null) {
+        crossover(new OrTreeNode(createBlankSchedule(fileParser)), parentOne, parentTwo, tempCopy);
+        if (solution != null) {
             stripEmptySlots();
         }
         return solution;
@@ -181,11 +177,10 @@ public class OrTree {
 
     private boolean crossover(OrTreeNode head, List<Slot> parentOne, List<Slot> parentTwo, List<Slot> localSched) //TODO in the works
     {
-
-        List<Slot> newFact = new ArrayList<>();
         Random randomGenerator = new Random();   // Need to choose a random child node to expand
         int randomInt = randomGenerator.nextInt();
-        while(randomInt < 1){
+        boolean notAdded = false;
+        while (randomInt < 1) {
             randomInt = randomGenerator.nextInt();
         }
         randomInt = randomInt % 2;
@@ -193,69 +188,94 @@ public class OrTree {
         int index;
         boolean isSolved = false;
 
-        if(localSched == null)
+        if (localSched == null)
             return true;
 
-
-        if(localSched.size() == 0) {
+        if (localSched.size() == 0) {
             solution = head.getSchedule();
             return true;
         }
 
+        slotRemoved = localSched.get(0);
+        localSched.remove(0);
 
-        index = findIndexCounterpart(localSched.get(0), parentTwo);
+//********************************************************************************
+        //CASE 1: SAME
+        index = findIndexCounterpart(slotRemoved, parentTwo);
 
-        if(localSched.get(0).sameSlot(parentTwo.get(index)))
-            head.altern(localSched.get(0), true, hardConstraints);
+        if (slotRemoved.sameSlot(parentTwo.get(index))) {
+            head.altern(slotRemoved, true, hardConstraints);
+            if (head.getChildren() == null || head.getChildren().size() == 0)
+                notAdded = true;
+            else
+                isSolved = crossover(head.getChildren().get(0), parentOne, parentTwo, localSched);
+        }
+// **********************************************************************************
+        // Case 2: DIFFERENT
         else {
             if (randomInt == 0) {
-                head.altern(localSched.get(0), true, hardConstraints);
+                head.altern(slotRemoved, true, hardConstraints);
                 if (hasNoChildren(head))
                     head.altern(parentOne.get(index), true, hardConstraints);
 
             } else {
                 head.altern(parentTwo.get(index), true, hardConstraints);
-                if(hasNoChildren(head))
-                    head.altern(localSched.get(0), true, hardConstraints);
+                if (hasNoChildren(head))
+                    head.altern(slotRemoved, true, hardConstraints);
             }
-        }
-        if((head.getChildren() == null || head.getChildren().isEmpty()) && !localSched.isEmpty())
-        {
-            if(randomInt == 0)
-                head.altern(localSched.get(0), false, hardConstraints);
+
+            if (head.getChildren() == null || head.getChildren().size() == 0)
+                notAdded = true;
             else
-                head.altern(parentTwo.get(index), false, hardConstraints);
+                isSolved = crossover(head.getChildren().get(0), parentOne, parentTwo, localSched);
         }
-
-        slotRemoved = localSched.get(0);
-        localSched.remove(0);
-        if(head.getChildren().size() == 1)
-            isSolved = crossover(head.getChildren().get(0),parentOne,parentTwo,localSched);
-        else if(head.getChildren().size()== 0)
-            isSolved = crossover(head,parentOne,parentTwo,localSched);
-        else{
-            randomInt = randomGenerator.nextInt();
-            while (randomInt < 1)
-             randomInt = randomGenerator.nextInt();
-
-            randomInt = randomInt % head.getChildren().size();
-            int i = 0;
-            while(!isSolved || i < head.getChildren().size())
-            {
-                isSolved = crossover(head.getChildren().get(randomInt),parentOne,parentTwo,localSched);
-                randomInt++;
-                if(randomInt == head.getChildren().size())
-                    randomInt = 0;
-                i++;
-            }
-        }
-
-        if(!isSolved)
+//**********************************************************************************
+        // CASE 3:  RANDOM
+        if (notAdded) {              // if no solution has been found need to create and check the other children of the current node
             localSched.add(slotRemoved);
+            isSolved = genAllPossibleNodes(head, parentOne, parentTwo, localSched);
+        }
+        if(!notAdded && !isSolved)
+            isSolved = genAllPossibleNodes(head, parentOne, parentTwo, localSched);
 
         return isSolved;
     }
 
+
+
+    private boolean genAllPossibleNodes(OrTreeNode head, List<Slot> parentOne, List<Slot> parentTwo,List<Slot> slotToAdd) {
+        boolean isSolved = false;
+        Random randomGenerator = new Random();   // Need to choose a random child node to expand
+        int randomInt = randomGenerator.nextInt();
+
+        Slot classToAdd = slotToAdd.get(0);
+
+        head.altern(slotToAdd.get(0), false, hardConstraints);
+        if (head.getChildren() == null || head.getChildren().size() == 0)
+            return false;
+        slotToAdd.remove(0);
+
+        while (randomInt < 1) {
+            randomInt = randomGenerator.nextInt();
+        }
+        randomInt = randomInt % head.getChildren().size();
+
+        for (int i = 0; i < head.getChildren().size(); i++) {
+            if (randomInt == head.getChildren().size())
+                randomInt = 0;
+
+            isSolved = crossover(head.getChildren().get(randomInt), parentOne, parentTwo, slotToAdd);
+            if (isSolved)
+                break;
+
+            randomInt++;
+        }
+        if(!isSolved)
+            slotToAdd.add(classToAdd);
+        return isSolved;
+    }
+
+     
 
     private boolean hasNoChildren(OrTreeNode head)
     {
@@ -277,10 +297,11 @@ public class OrTree {
                 break;
             }
             else if(schedTwo.get(i).getCourse().isSame(target))
-            {
-                index = i;
-                break;
-            }
+                if(schedTwo.get(i).isCourse() == desiredSlot.isCourse())
+                {
+                    index = i;
+                    break;
+                }
         }
         return index;
     }

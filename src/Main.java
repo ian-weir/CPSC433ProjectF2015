@@ -44,6 +44,7 @@ public class Main {
 //        Fact fact3 = setBased.runCross(fact,fact2);
         Output output = new Output();
         output.output(fact.getSchedule(), fact.getValue());
+
 //        Fact fact2 = setBased.runSearch();
 //        output.output(fact2.getSchedule(), fact2.getValue());
        // output.output(fact3.getSchedule(), fact3.getValue());
