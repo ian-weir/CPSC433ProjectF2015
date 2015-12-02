@@ -235,9 +235,10 @@ public class OrTree {
             localSched.add(slotRemoved);
             isSolved = genAllPossibleNodes(head, parentOne, parentTwo, localSched);
         }
-        if(!notAdded && !isSolved)
+        if(!notAdded && !isSolved) {
+            localSched.add(slotRemoved);
             isSolved = genAllPossibleNodes(head, parentOne, parentTwo, localSched);
-
+        }
         return isSolved;
     }
 
