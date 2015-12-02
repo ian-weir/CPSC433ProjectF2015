@@ -167,15 +167,16 @@ public class FileParser {
                             courseListTwo.add(properKey);
                             pairs.put(properValue, courseListTwo);
                         }
-                    } else if (state == 9) {
+                    } else if (state == 9) { // partial assignment
                         coursePair = getNextUnwanted(currentData); //using getNextUnwanted because it parses the same way
                         slot = getCorrectSlotType(coursePair);
-                        if (slot == null) {
+                        Course course = getProperCourseElement(coursePair.getKey());
+                        if (slot == null || course == null) {
                             noErrors = false;
-                            System.out.println("There is no slot at that time for partial assignment");
-                            break;
+                            System.out.println("ERROR: Partial Assignment " + currentData + " is invalid, exiting program");
+                            System.exit(1);
                         }
-                        partialAssignments.put(getProperCourseElement(coursePair.getKey()), slot);
+                        partialAssignments.put(course, slot);
                     }
                 }
             }
@@ -196,7 +197,7 @@ public class FileParser {
         max = getNextString(',', currentData, false).trim();
         min = getNextString(',', currentData, true).trim();
 
-        return new Slot(day, time, Integer.parseInt(max), Integer.parseInt(min));
+        return new Slot(day.toUpperCase(), time, Integer.parseInt(max), Integer.parseInt(min));
     }
 
     private Course getNextCourse(String currentData) { //will return course
@@ -211,7 +212,7 @@ public class FileParser {
         getNextString(' ', currentData, false); // ignores LEC
         lecSection = getNextString(' ', currentData, true).trim();
 
-        return new Course(department, Integer.parseInt(classNum), lecSection);
+        return new Course(department.toUpperCase(), Integer.parseInt(classNum), lecSection);
     }
 
     private Lab getNextLab(String currentData) { //will return lab
@@ -232,8 +233,8 @@ public class FileParser {
         tutorialSection = getNextString(' ', currentData, true).trim();
 
         lecSection = (lecSection.isEmpty()) ? "404" : lecSection; //if lecSection isn't set make it 404
-        Lab lab = new Lab(department, Integer.parseInt(classNum), lecSection, tutorialSection);
-        lab.setType(type);
+        Lab lab = new Lab(department.toUpperCase(), Integer.parseInt(classNum), lecSection, tutorialSection);
+        lab.setType(type.toUpperCase());
         
         return lab;
     }

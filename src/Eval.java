@@ -107,7 +107,7 @@ public class Eval {
                 if (slot.sameSlot(compareSlot) && slot.getCourse().getDepartment().equals("CPSC")) {
                     compareCourse = compareSlot.getCourse();
                     if (!(slotCourse instanceof Lab) && !(compareCourse instanceof Lab)) {
-                        if (slotCourse.getClassNum() == compareCourse.getClassNum()) {
+                        if (slotCourse.getClassNum() == compareCourse.getClassNum() && !slotCourse.getLecSection().equals(compareCourse.getLecSection())) {
                             penalty++;
                         }
                     }
