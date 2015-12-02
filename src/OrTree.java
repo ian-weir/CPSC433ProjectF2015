@@ -55,9 +55,9 @@ public class OrTree {
             solution = head.getSchedule();
         }
         Random randomGenerator = new Random();   // Need to choose a random child node to expand
-        randomInt = randomGenerator.nextInt();
+        randomInt = randomGenerator.nextInt(Integer.MAX_VALUE - 1);
         while (randomInt < 1) {
-            randomInt = randomGenerator.nextInt();
+            randomInt = randomGenerator.nextInt(Integer.MAX_VALUE - 1);
         }
         int modNumber = (head.getChildren() == null || head.getChildren().isEmpty() ? head.getSchedule().size() : head.getChildren().size());
         int randomInt1 = randomInt % modNumber;
@@ -178,10 +178,10 @@ public class OrTree {
     private boolean crossover(OrTreeNode head, List<Slot> parentOne, List<Slot> parentTwo, List<Slot> localSched) //TODO in the works
     {
         Random randomGenerator = new Random();   // Need to choose a random child node to expand
-        int randomInt = randomGenerator.nextInt();
+        int randomInt = randomGenerator.nextInt(Integer.MAX_VALUE - 1);
         boolean notAdded = false;
-        while (randomInt < 1) {
-            randomInt = randomGenerator.nextInt();
+        if (randomInt < 1) {
+            randomInt = randomGenerator.nextInt(Integer.MAX_VALUE - 1);
         }
         randomInt = randomInt % 2;
         Slot slotRemoved;//= new Slot();
@@ -268,7 +268,7 @@ public class OrTree {
     private boolean genAllPossibleNodes(OrTreeNode head, List<Slot> parentOne, List<Slot> parentTwo,List<Slot> slotToAdd) {
         boolean isSolved = false;
         Random randomGenerator = new Random();   // Need to choose a random child node to expand
-        int randomInt = randomGenerator.nextInt();
+        int randomInt = randomGenerator.nextInt(Integer.MAX_VALUE - 1);
 
         Slot classToAdd = slotToAdd.get(0);
 
@@ -278,7 +278,7 @@ public class OrTree {
         slotToAdd.remove(0);
 
         while (randomInt < 1) {
-            randomInt = randomGenerator.nextInt();
+            randomInt = randomGenerator.nextInt(Integer.MAX_VALUE - 1);
         }
         randomInt = randomInt % head.getChildren().size();
 

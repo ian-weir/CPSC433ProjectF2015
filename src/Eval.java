@@ -3,7 +3,7 @@ import java.util.Map;
 
 public class Eval {
 	
-    public int minFilled(List<Slot> schedule) {
+    public int minFilled(List<Slot> schedule, int penCourseMin, int penLabMin) {
         int penalty = 0;
         int classCount = 1;
         int currentMin = schedule.get(0).getMinCapacity();
@@ -15,7 +15,11 @@ public class Eval {
                 }
             } else {
                 if (classCount < currentMin) {
-                    penalty++;
+                    if(schedule.get(i).getCourse() instanceof Lab){
+                        penalty += penLabMin;
+                    } else {
+                        penalty += penCourseMin;
+                    }
                 }
                 if (i != schedule.size() - 1) {
                     currentMin = schedule.get(i + 1).getMinCapacity();

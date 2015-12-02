@@ -3,15 +3,15 @@ import java.util.*;
 public class SetBased {
     private List<Fact> facts;
     private OrTree orTree;
-    private int populationMax = 20;
-    private int maxGeneration = 5;
-    private double cullSize = 0.66;
-    private int weightMinFilled, weightPref, weightPair, weightSecDiff;
+    private int populationMax = 100;
+    private int maxGeneration = 100;
+    private double cullSize = 0.50;
+    private int weightMinFilled, weightPref, weightPair, weightSecDiff, penCourseMin, penLabMin, penNotPaired, penSection;
     private Eval eval = new Eval();
     private FileParser fileParser;
 
 
-    SetBased(int weightMinFilled, int weightPref, int weightPair, int weightSecDiff, FileParser fileParser) {
+    SetBased(int weightMinFilled, int weightPref, int weightPair, int weightSecDiff, int penCourseMin, int penLabMin,  int penNotPaired,  int penSection, FileParser fileParser) {
         facts = new ArrayList<>();
         orTree = new OrTree(fileParser);
         this.weightMinFilled = weightMinFilled;
@@ -19,6 +19,10 @@ public class SetBased {
         this.weightPair = weightPair;
         this.weightSecDiff = weightSecDiff;
         this.fileParser = fileParser;
+        this.penCourseMin = penCourseMin;
+        this.penLabMin = penLabMin;
+        this.penNotPaired = penNotPaired;
+        this.penSection = penSection;
     }
 
     public Fact runCross(Fact fact1, Fact fact2, FileParser fileParser) {
@@ -85,16 +89,16 @@ public class SetBased {
         int value = 0;
 
         if (weightMinFilled > 0) {
-            value += weightMinFilled * eval.minFilled(schedule);
+            value += weightMinFilled * eval.minFilled(schedule, penCourseMin, penLabMin);
         }
         if (weightPref > 0) {
             value += weightPref * eval.pref(schedule, fileParser.getPreferences(), fileParser.getCourseSlots(), fileParser.getLabSlots());
         }
         if (weightPair > 0) {
-            value += weightPair * eval.pair(schedule, fileParser.getPairs());
+            value += weightPair * (eval.pair(schedule, fileParser.getPairs()) * penNotPaired);
         }
         if (weightSecDiff > 0) {
-            value += weightSecDiff * eval.secDiff(schedule);
+            value += weightSecDiff * (eval.secDiff(schedule) * penSection);
         }
 
         return value;
