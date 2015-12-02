@@ -16,6 +16,12 @@ public class OrTree {
 
     public List<Slot> initialize() {
         generateTree(new OrTreeNode(createBlankSchedule(fileParser)), deepCopyCourses(fileParser.getAllCourses()), deepCopyLabs(fileParser.getAllLabs()));
+
+        if(solution == null)
+        {
+            System.out.println("*** No valid solution found ***");
+            System.exit(0);
+        }
         stripEmptySlots();
         return solution;
     }

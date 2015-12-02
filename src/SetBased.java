@@ -74,6 +74,7 @@ public class SetBased {
             }
         }
 
+    //    bestFact = runCross(fSelect(), fSelect(), fileParser);
         //If size of facts is larger than X cull
         //Otherwise select 2 facts to use as parents
         //
