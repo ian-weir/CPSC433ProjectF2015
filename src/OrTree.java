@@ -206,7 +206,7 @@ public class OrTree {
         index = findIndexCounterpart(slotRemoved, parentTwo);
 
         if (slotRemoved.sameSlot(parentTwo.get(index))) {
-            System.out.println("Case 1       "  + localSched.size() + "Class removed: " + slotRemoved.getCourse().getDepartment() + " " + slotRemoved.getCourse().getClassNum() +" " + slotRemoved.getCourse().getLecSection() );
+      //      System.out.println("Case 1       "  + localSched.size() + "Class removed: " + slotRemoved.getCourse().getDepartment() + " " + slotRemoved.getCourse().getClassNum() +" " + slotRemoved.getCourse().getLecSection() );
             head.altern(slotRemoved, true, hardConstraints);
             if (head.getChildren() == null || head.getChildren().size() == 0)
                 notAdded = true;
@@ -216,7 +216,7 @@ public class OrTree {
 // **********************************************************************************
         // Case 2: DIFFERENT
         else {
-            System.out.println("Case 2       "  + localSched.size() + "Class removed: " + slotRemoved.getCourse().getDepartment() + " " + slotRemoved.getCourse().getClassNum()+ " " + slotRemoved.getCourse().getLecSection() );
+        //    System.out.println("Case 2       "  + localSched.size() + "Class removed: " + slotRemoved.getCourse().getDepartment() + " " + slotRemoved.getCourse().getClassNum()+ " " + slotRemoved.getCourse().getLecSection() );
             if (randomInt == 0) {
                 head.altern(slotRemoved, true, hardConstraints);
                 if (hasNoChildren(head)) {
@@ -244,22 +244,22 @@ public class OrTree {
 //**********************************************************************************
         // CASE 3:  RANDOM
         if (notAdded) {// if no solution has been found need to create and check the other children of the current node
-            System.out.println("Case 3    " + localSched.size() + "Class removed: " + slotRemoved.getCourse().getDepartment() + " " + slotRemoved.getCourse().getClassNum() +" " + slotRemoved.getCourse().getLecSection() );
+          //  System.out.println("Case 3    " + localSched.size() + "Class removed: " + slotRemoved.getCourse().getDepartment() + " " + slotRemoved.getCourse().getClassNum() +" " + slotRemoved.getCourse().getLecSection() );
             localSched.add(slotRemoved);
             head.getSchedule().remove(slotRemoved);
             isSolved = genAllPossibleNodes(head, parentOne, parentTwo, localSched);
         }
         if(!notAdded && !isSolved) {
-            System.out.println("Case 4     "  + localSched.size() + "Class Added: " + slotRemoved.getCourse().getDepartment() + " " + slotRemoved.getCourse().getClassNum() + " " + slotRemoved.getCourse().getLecSection());
+           // System.out.println("Case 4     "  + localSched.size() + "Class Added: " + slotRemoved.getCourse().getDepartment() + " " + slotRemoved.getCourse().getClassNum() + " " + slotRemoved.getCourse().getLecSection());
             localSched.add(slotRemoved);
             head.getSchedule().remove(slotRemoved);
             head.getChildren().clear();
             isSolved = genAllPossibleNodes(head, parentOne, parentTwo, localSched);
         }
-        if(isSolved)
-        System.out.println("Return True");
-        else
-            System.out.println("Return False");
+        //if(isSolved)
+        //System.out.println("Return True");
+        //else
+         //   System.out.println("Return False");
         return isSolved;
     }
 
