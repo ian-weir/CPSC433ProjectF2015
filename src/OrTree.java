@@ -60,6 +60,7 @@ public class OrTree {
             head.setSolvedToTrue();
             solution = head.getSchedule();
         }
+
         Random randomGenerator = new Random();   // Need to choose a random child node to expand
         randomInt = randomGenerator.nextInt(Integer.MAX_VALUE - 1);
         while (randomInt < 1) {
@@ -80,7 +81,7 @@ public class OrTree {
                     index = 0;
                 }
                 for (int i = 0; i < head.getChildren().size(); i++) {  // For all the children
-                    if (index == head.getChildren().size() - 1) {  // Check if in array bounds
+                    if (index == head.getChildren().size()) {  // Check if in array bounds
                         index = 0;
                     }
                     solved = generateTree(head.getChildren().get(index), course, labs);  // Check if other child has a solution
