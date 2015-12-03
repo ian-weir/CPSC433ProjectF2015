@@ -80,7 +80,7 @@ public class FileParser {
                         if (!checkCourseSlot(slot)) {
                             System.out.println("A Course slot had an invalid Day or Time");
                             noErrors = false;
-                            break;
+                            System.exit(1);
                         }
                         courseSlots.put(slotID, slot);
                     } else if (state == 2) {
@@ -90,7 +90,7 @@ public class FileParser {
                         if (!checkLabSlot(slot)) {
                             System.out.println("A Lab slot had an invalid Day or Time");
                             noErrors = false;
-                            break;
+                            System.exit(1);
                         }
                         labSlots.put(slotID, slot);
                     } else if (state == 3) {
@@ -112,30 +112,38 @@ public class FileParser {
                         twoCoursePair = getNotCompatible(currentData);
                         properKey = getProperCourseElement(twoCoursePair.getKey());
                         properValue = getProperCourseElement(twoCoursePair.getValue());
-                        if (notCompatible.containsKey(properKey)) {
-                            notCompatible.get(properKey).add(properValue);
+                        if(properKey == null || properValue == null){
+                            System.out.println("WARNING: Not Compatible " + currentData + " Contains an invalid course, item was not added");
                         } else {
-                            List<Course> courseListOne = new ArrayList<>();
-                            courseListOne.add(properValue);
-                            notCompatible.put(properKey, courseListOne);
-                        }
-                        if (notCompatible.containsKey(properValue)) {
-                            notCompatible.get(properValue).add(properKey);
-                        } else {
-                            List<Course> courseListTwo = new ArrayList<>();
-                            courseListTwo.add(properKey);
-                            notCompatible.put(properValue, courseListTwo);
+                            if (notCompatible.containsKey(properKey)) {
+                                notCompatible.get(properKey).add(properValue);
+                            } else {
+                                List<Course> courseListOne = new ArrayList<>();
+                                courseListOne.add(properValue);
+                                notCompatible.put(properKey, courseListOne);
+                            }
+                            if (notCompatible.containsKey(properValue)) {
+                                notCompatible.get(properValue).add(properKey);
+                            } else {
+                                List<Course> courseListTwo = new ArrayList<>();
+                                courseListTwo.add(properKey);
+                                notCompatible.put(properValue, courseListTwo);
+                            }
                         }
                     } else if (state == 6) {
                         coursePair = getNextUnwanted(currentData);
                         slot = getCorrectSlotType(coursePair);
                         properKey = getProperCourseElement(coursePair.getKey());
-                        if (unwanted.containsKey(properKey)) {
-                            unwanted.get(properKey).add(slot);
+                        if(slot == null || properKey == null){
+                         System.out.println("WARNING: Unwanted " + currentData + " Contains and invalid slot or Course, item was not added");
                         } else {
-                            List<Slot> slotList = new ArrayList<>();
-                            slotList.add(slot);
-                            unwanted.put(properKey, slotList);
+                            if (unwanted.containsKey(properKey)) {
+                                unwanted.get(properKey).add(slot);
+                            } else {
+                                List<Slot> slotList = new ArrayList<>();
+                                slotList.add(slot);
+                                unwanted.put(properKey, slotList);
+                            }
                         }
                     } else if (state == 7) {
                         preference = getNextPreferences(currentData);
@@ -153,19 +161,23 @@ public class FileParser {
                         twoCoursePair = getNotCompatible(currentData); // using getNotCompatible because it parses the same way
                         properKey = getProperCourseElement(twoCoursePair.getKey());
                         properValue = getProperCourseElement(twoCoursePair.getValue());
-                        if (pairs.containsKey(properKey)) {
-                            pairs.get(properKey).add(properValue);
+                        if(properKey == null || properValue == null){
+                            System.out.println("WARNING: Pair " + currentData + " Contains and invalid slot or Course, item was not added");
                         } else {
-                            List<Course> courseListOne = new ArrayList<>();
-                            courseListOne.add(properValue);
-                            pairs.put(properKey, courseListOne);
-                        }
-                        if (pairs.containsKey(properValue)) {
-                            pairs.get(properValue).add(properKey);
-                        } else {
-                            List<Course> courseListTwo = new ArrayList<>();
-                            courseListTwo.add(properKey);
-                            pairs.put(properValue, courseListTwo);
+                            if (pairs.containsKey(properKey)) {
+                                pairs.get(properKey).add(properValue);
+                            } else {
+                                List<Course> courseListOne = new ArrayList<>();
+                                courseListOne.add(properValue);
+                                pairs.put(properKey, courseListOne);
+                            }
+                            if (pairs.containsKey(properValue)) {
+                                pairs.get(properValue).add(properKey);
+                            } else {
+                                List<Course> courseListTwo = new ArrayList<>();
+                                courseListTwo.add(properKey);
+                                pairs.put(properValue, courseListTwo);
+                            }
                         }
                     } else if (state == 9) { // partial assignment
                         coursePair = getNextUnwanted(currentData); //using getNextUnwanted because it parses the same way
