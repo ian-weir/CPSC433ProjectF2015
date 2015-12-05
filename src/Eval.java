@@ -39,7 +39,7 @@ public class Eval {
 
         for (Slot slot : schedule) {
             course = slot.getCourse();
-            course = getProperKey(preferenceMap, course);
+            course = getProperPreferenceKey(preferenceMap, course);
             if (course != null) {
                 preferenceList = preferenceMap.get(course);
                 currentPenalty = 0;
@@ -69,20 +69,21 @@ public class Eval {
         boolean firstSlot = true;
 
         for (Slot slot : schedule) {
-            course = slot.getCourse();
+            course = getProperPairKey(slot.getCourse(), pairs);
             if (pairs.containsKey(course)) {
                 List<Course> pairedCourses = pairs.get(course);
                 int index = getFirstSlot(schedule, slot);
                 if (index == 0) {
-                    if (pairedCourses.contains(schedule.get(index).getCourse())) {
+                    if(isInPairList(schedule.get(index).getCourse(), pairedCourses)){
                         pairCount++;
                     }
                     index++;
                     firstSlot = false;
                 }
-                while ((schedule.get(index).getDay().equals(schedule.get(index - 1).getDay()) && schedule.get(index).getTime().equals(schedule.get(index - 1).getTime())) || firstSlot) {
+                while ((index < schedule.size() && schedule.get(index).getDay().equals(schedule.get(index - 1).getDay()) && schedule.get(index).getTime().equals(schedule.get(index - 1).getTime()))
+                        || firstSlot) {
                     firstSlot = false;
-                    if (pairedCourses.contains(schedule.get(index).getCourse())) {
+                    if(isInPairList(schedule.get(index).getCourse(), pairedCourses)){
                         pairCount++;
                     }
                     index++;
@@ -131,7 +132,7 @@ public class Eval {
         return index;
     }
 
-    private Course getProperKey(Map<Course, List<Preference>> preferenceMap, Course sameCourse){
+    private Course getProperPreferenceKey(Map<Course, List<Preference>> preferenceMap, Course sameCourse){
         Course properCourse = null;
 
         for(Course course : preferenceMap.keySet()){
@@ -146,5 +147,28 @@ public class Eval {
         return properCourse;
     }
 
+    private Course getProperPairKey(Course key, Map<Course, List<Course>> pairs){
+        Course properCourseKey = null;
+
+        for(Course course : pairs.keySet()){
+            if(key.isSame(course)){
+                properCourseKey = course;
+            }
+        }
+
+        return  properCourseKey;
+    }
+
+    private boolean isInPairList(Course key, List<Course> coursePairs){
+        boolean isInList = false;
+
+        for (Course course : coursePairs){
+            if(course.isSame(key)){
+                isInList = true;
+            }
+        }
+
+        return isInList;
+    }
 
 }
