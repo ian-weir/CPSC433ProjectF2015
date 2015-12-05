@@ -3,12 +3,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+
 public class OrTree {
 
     private List<Slot> solution;
     private FileParser fileParser;
     private Constr hardConstraints;
     private int backtrackCount = 0;
+    private long startTime;
+    private long oneMinute = 60000;
 
     public OrTree(FileParser fileParser) {
         this.fileParser = fileParser;
@@ -176,6 +179,7 @@ public class OrTree {
         for (Slot slot : parentOne)
             tempCopy.add(new Slot(slot));
 
+        startTime = System.currentTimeMillis();
         crossover(new OrTreeNode(createBlankSchedule(fileParser)), parentOne, parentTwo, tempCopy);
         if (solution != null) {
             stripEmptySlots();
@@ -274,7 +278,8 @@ public class OrTree {
                 backtrackCount++;
             }
         }
-        if(backtrackCount > 10000){
+        long currentTime = System.currentTimeMillis();
+        if(currentTime - startTime >  oneMinute || backtrackCount > 10000){ //if the last element has failed to be inserted 10000 times or the tree is taking longer than 2 minutes, start over
             localSched = new ArrayList<>();
             isSolved = true;
         }

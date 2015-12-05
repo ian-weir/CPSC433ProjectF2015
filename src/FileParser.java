@@ -193,6 +193,9 @@ public class FileParser {
                 }
             }
         } catch (IOException e) {
+            System.out.println("File not found");
+            System.exit(1);
+        } catch (Exception e){
             e.printStackTrace();
         }
         return noErrors;
