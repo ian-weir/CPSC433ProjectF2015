@@ -28,6 +28,7 @@ public class OrTreeNode {
 
     public void setSolvedToFalse() {
         solved = 0;
+        schedule = null;
     }
 
     public void setSolvedToTrue() {

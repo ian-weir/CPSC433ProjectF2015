@@ -48,6 +48,7 @@ public class SetBased {
             newSchedule = orTree.initialize();
             if (newSchedule != null) {
                 facts.add(new Fact(newSchedule, fWert(newSchedule)));
+//                System.out.println(facts.size());
                 orTree = new OrTree(fileParser);
             } else {
                 currentPopulation--;
@@ -60,13 +61,15 @@ public class SetBased {
             if (currentPopulation == populationMax) {
                 cull();
                 currentGeneration++;
+                currentPopulation = facts.size();
             } else {
                 orTree = new OrTree(fileParser);
                 Fact newFact = runCross(fSelect(), fSelect(), fileParser);
-                if (newFact.getSchedule() != null) {
+                if (newFact != null && newFact.getSchedule() != null && newFact.getSchedule().size() == facts.get(0).getSchedule().size()) {
                     facts.add(newFact);
+//                    System.out.println(facts.size());
+                    currentPopulation++;
                 }
-                currentPopulation++;
                 for (Fact fact : facts) {
                     bestFact = (fact.getValue() < bestFact.getValue() ? fact : bestFact);
                 }
@@ -138,12 +141,17 @@ public class SetBased {
     }
 
     private void cull() {
-        while (facts.size() >= populationMax / cullSize) {
+        double lowerBound = populationMax * cullSize;
+        while (facts.size() >= lowerBound) {
             Fact currentWorst = facts.get(0);
+            int worstIndex = 0;
             for (Fact fact : facts) {
-                currentWorst = (fact.getValue() > currentWorst.getValue() ? fact : currentWorst);
+                if(fact.getValue() < currentWorst.getValue()){
+                    currentWorst = fact;
+                    worstIndex = facts.indexOf(fact);
+                }
             }
-            facts.remove(currentWorst);
+            facts.remove(worstIndex);
         }
     }
 

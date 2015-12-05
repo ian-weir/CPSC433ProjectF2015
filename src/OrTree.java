@@ -8,6 +8,7 @@ public class OrTree {
     private List<Slot> solution;
     private FileParser fileParser;
     private Constr hardConstraints;
+    private int backtrackCount = 0;
 
     public OrTree(FileParser fileParser) {
         this.fileParser = fileParser;
@@ -267,6 +268,17 @@ public class OrTree {
         //System.out.println("Return True");
         //else
          //   System.out.println("Return False");
+        if(!isSolved){
+            head.setSolvedToFalse();
+            if(localSched.size() == 1){
+                backtrackCount++;
+            }
+        }
+        if(backtrackCount > 10000){
+            localSched = new ArrayList<>();
+            isSolved = true;
+        }
+
         return isSolved;
     }
 
@@ -288,20 +300,32 @@ public class OrTree {
             randomInt = randomGenerator.nextInt(Integer.MAX_VALUE - 1);
         }
         randomInt = randomInt % head.getChildren().size();
+        int startingPoint = randomInt;
 
         for (int i = 0; i < head.getChildren().size(); i++) {
             if (randomInt == head.getChildren().size())
                 randomInt = 0;
 
+            while(head.getChildren().get(randomInt).getSolved() == 0){
+                randomInt++;
+                if(randomInt == head.getChildren().size()){
+                    randomInt = 0;
+                }
+            }
             isSolved = crossover(head.getChildren().get(randomInt), parentOne, parentTwo, slotToAdd);
-            if (isSolved)
+            if (isSolved) {
                 break;
+            }
 
             randomInt++;
+            if(randomInt == startingPoint){
+                break;
+            }
         }
         if(!isSolved) {
             slotToAdd.add(classToAdd);
             head.getChildren().remove(slotToAdd);// = null;
+            head.setSolvedToFalse();
         }
         return isSolved;
     }
