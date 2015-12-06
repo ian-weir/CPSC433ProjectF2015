@@ -12,6 +12,19 @@ public class Lab extends Course{
         labSection = lab.getLabSection();
         type = lab.getType();
     }
+    
+    @Override
+    public boolean isSame(Course course)
+    {
+    	if(course instanceof Lab){
+    		if(this.getDepartment().equals(course.getDepartment()))
+    			if(this.getClassNum() == course.getClassNum())
+    				if(this.getLecSection().equals(course.getLecSection()))
+    					if(this.getLabSection().equals(((Lab) course).getLabSection()))
+    						return true;
+    	}
+        return false;
+    }
 
     public boolean sameLab (Lab lab){
         return this.isSame(lab) && labSection.equals(lab.getLabSection());
