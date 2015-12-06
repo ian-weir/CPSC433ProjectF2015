@@ -239,7 +239,7 @@ public class OrTree {
                 }
 
             } else {
-                head.getSchedule().remove(parentOne.get(index));
+               // head.getSchedule().remove(parentOne.get(index));
                 head.altern(parentTwo.get(index), true, hardConstraints);
                 if (hasNoChildren(head)) {
                     notAdded = true;
@@ -316,8 +316,17 @@ public class OrTree {
                 if(randomInt == head.getChildren().size()){
                     randomInt = 0;
                 }
+                isSolved = crossover(head.getChildren().get(randomInt), parentOne, parentTwo, slotToAdd);
+                if (isSolved) {
+                    break;
+                }
+
+                randomInt++;
+                if(randomInt == startingPoint){
+                    break;
+                }
             }
-            isSolved = crossover(head.getChildren().get(randomInt), parentOne, parentTwo, slotToAdd);
+        /*    isSolved = crossover(head.getChildren().get(randomInt), parentOne, parentTwo, slotToAdd);
             if (isSolved) {
                 break;
             }
@@ -325,7 +334,7 @@ public class OrTree {
             randomInt++;
             if(randomInt == startingPoint){
                 break;
-            }
+            }*/
         }
         if(!isSolved) {
             slotToAdd.add(classToAdd);
