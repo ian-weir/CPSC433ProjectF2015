@@ -1,6 +1,8 @@
 //Hello I am from the future
 
 
+import java.util.Scanner;
+
 public class Main {
     public static void main(String[] args) { //Order is  weightMinFilled, weightPref, weightPair, weightSecDiff
         FileParser fileParser = new FileParser();
@@ -14,14 +16,14 @@ public class Main {
         int penNotPaired = 1;
         int penSection = 1;
 
-//        String filename;
-//        System.out.println("Enter filename to read from");
-//        Scanner scan= new Scanner(System.in);
-//        filename = scan.nextLine();
-//        System.out.println("Reading from file " + filename);
-//        fileParser.setupData(filename);
+        String filename;
+        System.out.println("Enter filename to read from");
+        Scanner scan= new Scanner(System.in);
+        filename = scan.nextLine();
+        System.out.println("Reading from file " + filename);
+        fileParser.setupData(filename);
 
-        fileParser.setupData("test.txt");
+//        fileParser.setupData("BigTest1.txt");
 
 
         if (args.length == 8) {
@@ -50,16 +52,8 @@ public class Main {
 
 
         SetBased setBased = new SetBased(weightMinFilled, weightPref, weightPair, weightSecDiff, penCourseMin, penLabMin, penNotPaired, penSection, fileParser);
-//        SetBased setBased2 = new SetBased(weightMinFilled, weightPref, weightPair, weightSecDiff, fileParser);
         Fact fact = setBased.runSearch();
-//        Fact fact2  = setBased2.runSearch();
-//
-//        Fact fact3 = setBased.runCross(fact,fact2);
         Output output = new Output();
         output.output(fact.getSchedule(), fact.getValue());
-
-//        Fact fact2 = setBased.runSearch();
-//        output.output(fact2.getSchedule(), fact2.getValue());
-        // output.output(fact3.getSchedule(), fact3.getValue());
     }
 }

@@ -95,19 +95,23 @@ public class FileParser {
                         labSlots.put(slotID, slot);
                     } else if (state == 3) {
                         Course course = getNextCourse(currentData);
-                        if (course.getClassNum() == 313 && course.getDepartment().equals("CPSC")) {
-                            Lab lab = new Lab("CPSC", 813, course.getLecSection(), course.getLecSection());
-                            lab.setType("LEC");
-                            allLabs.add(lab);
-                        } else if (course.getClassNum() == 413 && course.getDepartment().equals("CPSC")) {
-                            Lab lab = new Lab("CPSC", 913, course.getLecSection(), course.getLecSection());
-                            lab.setType("LEC");
-                            allLabs.add(lab);
+                        if(checkForDuplicates(course)) {
+                            if (course.getClassNum() == 313 && course.getDepartment().equals("CPSC")) {
+                                Lab lab = new Lab("CPSC", 813, course.getLecSection(), course.getLecSection());
+                                lab.setType("LEC");
+                                allLabs.add(lab);
+                            } else if (course.getClassNum() == 413 && course.getDepartment().equals("CPSC")) {
+                                Lab lab = new Lab("CPSC", 913, course.getLecSection(), course.getLecSection());
+                                lab.setType("LEC");
+                                allLabs.add(lab);
+                            }
+                            allCourses.add(course);
                         }
-                        allCourses.add(course);
                     } else if (state == 4) {
                         Lab lab = getNextLab(currentData); //add to set of all labs
-                        allLabs.add(lab);
+                        if(checkForDuplicates(lab)) {
+                            allLabs.add(lab);
+                        }
                     } else if (state == 5) {
                         twoCoursePair = getNotCompatible(currentData);
                         properKey = getProperCourseElement(twoCoursePair.getKey());
@@ -450,6 +454,28 @@ public class FileParser {
         }
         return valid;
     }
+
+    boolean checkForDuplicates(Course compareCourse){
+        boolean noDuplicates = true;
+
+        if(compareCourse instanceof Lab){
+            for(Lab lab : allLabs){
+                if(lab.sameLab((Lab) compareCourse)){
+                    noDuplicates = false;
+                    break;
+                }
+            }
+        } else {
+            for (Course course : allCourses) {
+                if (course.isSame(compareCourse)) {
+                    noDuplicates = false;
+                    break;
+                }
+            }
+        }
+        return noDuplicates;
+    }
+
 
 
     public List<Course> getAllCourses() {

@@ -3,8 +3,8 @@ import java.util.*;
 public class SetBased {
     private List<Fact> facts;
     private OrTree orTree;
-    private int populationMax = 40;
-    private int maxGeneration = 10;
+    private int populationMax = 100;
+    private int maxGeneration = 100;
     private double cullSize = 0.50;
     private int weightMinFilled, weightPref, weightPair, weightSecDiff, penCourseMin, penLabMin, penNotPaired, penSection;
     private Eval eval = new Eval();
