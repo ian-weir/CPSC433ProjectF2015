@@ -51,7 +51,7 @@ public class Eval {
                         }
                     } else {
                         preferenceSlot = courseSlots.get(preference.getSlotId());
-                        if (slot.sameSlot(preferenceSlot)) {
+                        if (!slot.sameSlot(preferenceSlot)) {
                             currentPenalty += preference.getWeight();
                         }
                     }
