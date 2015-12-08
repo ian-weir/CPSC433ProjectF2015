@@ -65,35 +65,25 @@ public class Eval {
     public int pair(List<Slot> schedule, Map<Course, List<Course>> pairs) {
         int penalty = 0;
         Course course;
-        int pairCount = 0;
-        boolean firstSlot = true;
-
-        for (Slot slot : schedule) {
-            course = getProperPairKey(slot.getCourse(), pairs);
-            if (pairs.containsKey(course)) {
-                List<Course> pairedCourses = pairs.get(course);
-                int index = getFirstSlot(schedule, slot);
-                if (index == 0) {
-                    if(isInPairList(schedule.get(index).getCourse(), pairedCourses)){
-                        pairCount++;
-                    }
-                    index++;
-                    firstSlot = false;
-                }
-                while ((index < schedule.size() && schedule.get(index).getDay().equals(schedule.get(index - 1).getDay()) && schedule.get(index).getTime().equals(schedule.get(index - 1).getTime()))
-                        || firstSlot) {
-                    firstSlot = false;
-                    if(isInPairList(schedule.get(index).getCourse(), pairedCourses)){
-                        pairCount++;
-                    }
-                    index++;
-                }
-                if (pairCount < pairedCourses.size()) {
-                    penalty += pairedCourses.size() - pairCount;
-                }
-            }
+        
+        for(Slot slot : schedule){
+        	course = getProperPairKey(slot.getCourse(), pairs);
+        	List<Course> courseList = pairs.get(course);
+			if(courseList != null){
+				for(Slot slot2 : schedule){
+					Course course2 = slot2.getCourse();
+					if(!slot.sameSlot(slot2)){
+						for(Course c : courseList){
+							if(c.isSame(course2) && course2.isSame(c)){
+								penalty++;
+							}
+						}
+					}
+				}
+			}
         }
-        return penalty / 2;
+
+        return penalty/2;
     }
 
     public int secDiff(List<Slot> schedule) {
