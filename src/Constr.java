@@ -258,7 +258,7 @@ public class Constr {
 	//assume courses only and not labs/tutorials
 	//no courses can be scheduled at Tuesdays 11:00 - 12:30, so 11:00
 	private boolean tuesday11(Slot slot){
-		if(slot.isCourse() && slot.getDay().equals("TU") && slot.getTime().equals("11:00") && slot.getCourse().getDepartment().equals("CPSC")){
+		if(slot.isCourse() && slot.getDay().equals("TU") && slot.getTime().equals("11:00")){
 			return false;
 		}
 		return true;
