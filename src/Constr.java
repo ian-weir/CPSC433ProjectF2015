@@ -219,7 +219,6 @@ public class Constr {
 	private boolean lec9Evening(Slot slot){
 		if(slot.isCourse()){
 			Course course = slot.getCourse();
-			if(course.getDepartment().equals("CPSC")){ //is SENG classes apart of this department?
 				String lec = course.getLecSection();
 			//	lecNumber = Integer.parseInt(lec.substring(lec.indexOf(" ")+1)); //this one checked for "LEC 9x"
 				int lecNumber = Integer.parseInt(lec);	// this one only checks for "9x"
@@ -229,7 +228,7 @@ public class Constr {
 						return false;
 					}
 				}
-			}
+			
 		}
 		return true;
 	}
@@ -239,11 +238,11 @@ public class Constr {
 	//500-level courses must be scheduled into different time slots
 	private boolean level500(List<Slot> schedule, Slot slot){
 		Course course = slot.getCourse();
-		if(slot.isCourse() && course.getDepartment().equals("CPSC") && course.getClassNum() >= 500 && course.getClassNum() < 600){
+		if(slot.isCourse() && course.getClassNum() >= 500 && course.getClassNum() < 600){
 			for(Slot scheduleSlot : schedule){
 				if(scheduleSlot.getCourse() != null){
 					Course scheduleCourse = scheduleSlot.getCourse();
-					if(scheduleSlot.isCourse() && scheduleCourse.getDepartment().equals("CPSC") && scheduleCourse.getClassNum() >= 500 && scheduleCourse.getClassNum() < 600){
+					if(scheduleSlot.isCourse() && scheduleCourse.getClassNum() >= 500 && scheduleCourse.getClassNum() < 600){
 						if(slotEquals(slot, scheduleSlot)){
 							return false;	
 						}
