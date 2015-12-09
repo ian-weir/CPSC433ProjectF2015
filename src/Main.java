@@ -45,8 +45,8 @@ public class Main {
             penNotPaired = 1;
             penSection = 1;
         } else {
-            System.out.println("Incorrect number of Parameters! Either have no paramaetrs at all or this order: weightMinFilled weightPref weightPair weightSecDiff penCourseMin penLabMin" +
-                    "penNotPaired penSection");
+            System.out.println("Incorrect number of Parameters! Either have no parameters at all or this order: weightMinFilled weightPref weightPair weightSecDiff penCourseMin penLabMin" +
+                    " penNotPaired penSection");
             System.exit(1);
         }
 

@@ -95,14 +95,12 @@ public class Eval {
         for (Slot slot : schedule) {
             Course slotCourse = slot.getCourse();
             for (Slot compareSlot : schedule) {
-                if (slot.sameSlot(compareSlot) && slot.getCourse().getDepartment().equals("CPSC")) {
                     compareCourse = compareSlot.getCourse();
                     if (!(slotCourse instanceof Lab) && !(compareCourse instanceof Lab)) {
                         if (slotCourse.getClassNum() == compareCourse.getClassNum() && !slotCourse.getLecSection().equals(compareCourse.getLecSection())) {
                             penalty++;
                         }
                     }
-                }
             }
         }
         return penalty / 2;
@@ -148,17 +146,4 @@ public class Eval {
 
         return  properCourseKey;
     }
-
-    private boolean isInPairList(Course key, List<Course> coursePairs){
-        boolean isInList = false;
-
-        for (Course course : coursePairs){
-            if(course.isSame(key)){
-                isInList = true;
-            }
-        }
-
-        return isInList;
-    }
-
 }

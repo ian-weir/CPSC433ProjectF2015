@@ -12,6 +12,7 @@ public class OrTree {
     private int backtrackCount = 0;
     private long startTime;
     private long oneMinute = 60000;
+    private long tenSeconds = 10000;
 
     public OrTree(FileParser fileParser) {
         this.fileParser = fileParser;
@@ -19,6 +20,7 @@ public class OrTree {
     }
 
     public List<Slot> initialize() {
+        startTime = System.currentTimeMillis();
         generateTree(new OrTreeNode(createBlankSchedule(fileParser)), deepCopyCourses(fileParser.getAllCourses()), deepCopyLabs(fileParser.getAllLabs()));
 
         if(solution == null)
@@ -27,6 +29,9 @@ public class OrTree {
             System.exit(0);
         }
         stripEmptySlots();
+        if(solution.isEmpty()){
+            solution = null;
+        }
         return solution;
     }
 
@@ -103,37 +108,17 @@ public class OrTree {
                     labs.add(lab_added);      // put the lab back in the Lab list
                     head.getSchedule().remove(lab_added); // remove the lab from the schedule
                 }
+                long currentTime = System.currentTimeMillis() - startTime;
+                if(currentTime > tenSeconds){
+                    solution = new ArrayList<>();
+                    head.setSolvedToFalse();
+                    return true;
+                }
                 return false;  // return no solution found
             }
         }
         return solved;
     }
-/*
-    public List<Slot> converge(OrTreeNode head, List<Slot> schedule_1, List<Slot> schedule_2, int randomInt) {
-        if (schedule_1.size() == 0)
-            return head.getSchedule();
-
-        if (schedule_1.get(0).equals(schedule_2.get(0))) {
-            head.altern(schedule_1.get(0).getCourse(), true);
-            schedule_1.remove(0);
-            schedule_2.remove(0);
-        } else {
-            Random randomGenerator = new Random();
-            randomInt = randomGenerator.nextInt(randomInt);
-            randomInt = randomInt % 2;
-
-            if (randomInt == 1)
-                head.altern(schedule_1.get(0).getCourse(), true);
-            else
-                head.altern(schedule_2.get(0).getCourse(), true);
-
-            schedule_1.remove(0);
-            schedule_2.remove(0);
-        }
-        return converge(head.getChildren().get(0), schedule_1, schedule_2, randomInt);
-    }
-*/
-
     private List<Slot> createBlankSchedule(FileParser fileParser) {
         List<Slot> blankSchedule = new ArrayList<>();
 

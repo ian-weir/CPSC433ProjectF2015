@@ -44,6 +44,7 @@ public class SetBased {
         int currentGeneration = 1;
         int currentPopulation;
 
+        System.out.println("Creating inital facts...");
         for (currentPopulation = 0; currentPopulation < (populationMax * cullSize); currentPopulation++) {
             newSchedule = orTree.initialize();
             if (newSchedule != null) {
@@ -54,8 +55,8 @@ public class SetBased {
                 currentPopulation--;
             }
         }
-//        facts.add(runCross(facts.get(0), facts.get(1)));
-//        bestFact = runCross(facts.get(0), facts.get(1));
+
+        System.out.println("Running the search...");
         bestFact = facts.get(0);
         while (currentGeneration < maxGeneration && bestFact.getValue() != 0) {
             if (currentPopulation == populationMax) {
@@ -77,10 +78,6 @@ public class SetBased {
             }
         }
 
-    //    bestFact = runCross(fSelect(), fSelect(), fileParser);
-        //If size of facts is larger than X cull
-        //Otherwise select 2 facts to use as parents
-        //
         for (Fact fact : facts) {
             bestFact = (fact.getValue() < bestFact.getValue() ? fact : bestFact);
         }
@@ -171,6 +168,4 @@ public class SetBased {
         }
         return totalWeights;
     }
-
-
 }
