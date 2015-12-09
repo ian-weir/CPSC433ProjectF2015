@@ -24,17 +24,54 @@ public class Constr {
 	
     //returns true if assigning a slot(with class in it) to a schedule passes all the hard constraints
     public boolean constr(List<Slot> schedule, Slot slot){
-    	return 	classMax(schedule,slot) && 
-    			unequalAssignment(schedule,slot) && 
-    			notCompatible(schedule,slot) &&
-    			partialAssignment(slot) &&
-    			unwanted(slot) &&
-    			lec9Evening(slot) &&
-    			level500(schedule, slot) &&
-    			tuesday11(slot) &&
-    			cpsc813(slot) &&
-    			cpsc913(slot)
-    			;
+    	int courseCount = 1;
+    	
+    	//long start = System.currentTimeMillis();
+    	
+    	if(unwanted(slot) == false){
+    		return false;
+    	}
+    	if(lec9Evening(slot)== false){
+    		return false;
+    	}
+    	if(level500(schedule, slot) == false){
+    		return false;
+    	}
+    	if(partialAssignment(slot) == false){
+    		return false;
+    	}
+    	if(tuesday11(slot) == false){
+    		return false;
+    	}
+    	if(cpsc813(slot) == false){
+    		return false;
+    	}
+    	if(cpsc913(slot) == false){
+    		return false;
+    	}
+    	
+    	for(Slot scheduleSlot : schedule){
+			if(scheduleSlot.getCourse() != null){
+				if(slotEquals(slot,scheduleSlot)){
+					courseCount++;
+				}
+				if(courseCount > slot.getMaxCapcity()){
+					return false;
+				}
+				if(unequalAssignment(scheduleSlot,slot) == false){
+					return false;
+				}
+				if(notCompatible(scheduleSlot,slot) == false){
+					return false;
+				}
+			}
+    	}
+    	
+   // 	if((System.currentTimeMillis() - start) > 1000){
+   // 		System.out.println((System.currentTimeMillis() - start));
+   // 	}
+
+    	return true;
     }
     
 	//checks if two courses or labs overlap
@@ -117,42 +154,22 @@ public class Constr {
 		return null;
 	}
 	
-	//no more than course max or lab max can be assigned to a slot
-	private boolean classMax(List<Slot> schedule, Slot slot){
-		int current = 1;
-		for(Slot scheduleSlot : schedule){
-			if(scheduleSlot.getCourse() != null){
-				if(slotEquals(slot,scheduleSlot)){
-					current++;
-				}
-			}
-		}
-		if(current > slot.getMaxCapcity())
-			return false;
-		else
-			return true;
-	}
-	
 	//a course can not be assigned to the same slot as its labs
-	private boolean unequalAssignment(List<Slot> schedule, Slot slot){
+	private boolean unequalAssignment(Slot scheduleSlot, Slot slot){
 		Course course = slot.getCourse();
-		for(Slot scheduleSlot : schedule){
-			if(scheduleSlot.getCourse() != null){
-				Course scheduleCourse = scheduleSlot.getCourse();
-				if(slot.isCourse() != scheduleSlot.isCourse()){ //check that one is a lab/tutorial and the other is a lecture
-					if(course.getDepartment().equals(scheduleCourse.getDepartment())){
-						if(course.getClassNum() == scheduleCourse.getClassNum()){
-							if(overlap(slot, scheduleSlot)){
-								if(course.getLecSection().equals(scheduleCourse.getLecSection())){
-									return false;
-								}
-								if(course.getLecSection().equals("404")){ //check if lab has no lecture section, lab is connected to all lecture sections
-									return false;
-								}
-								if(scheduleCourse.getLecSection().equals("404")){
-									return false;
-								}
-							}
+		Course scheduleCourse = scheduleSlot.getCourse();
+		if(slot.isCourse() != scheduleSlot.isCourse()){ //check that one is a lab/tutorial and the other is a lecture
+			if(course.getDepartment().equals(scheduleCourse.getDepartment())){
+				if(course.getClassNum() == scheduleCourse.getClassNum()){
+					if(overlap(slot, scheduleSlot)){
+						if(course.getLecSection().equals(scheduleCourse.getLecSection())){
+							return false;
+						}
+						if(course.getLecSection().equals("404")){ //check if lab has no lecture section, lab is connected to all lecture sections
+							return false;
+						}
+						if(scheduleCourse.getLecSection().equals("404")){
+							return false;
 						}
 					}
 				}
@@ -162,13 +179,12 @@ public class Constr {
 	}
 	
 	//not compatible courses and labs should not be in the same slot
-	private boolean notCompatible(List<Slot> schedule, Slot slot){
+	private boolean notCompatible(Slot scheduleSlot, Slot slot){
 		List<Course> allKeys = new ArrayList<>();
 		allKeys.addAll(notCompatible.keySet());
 		Course courseKey = containsCourse(allKeys, slot.getCourse()); //changes the object into a usable key object for notCompatible
 		if(courseKey != null){
 			List<Course> notCompatibleList = notCompatible.get(courseKey);
-			for(Slot scheduleSlot : schedule){
 				if(scheduleSlot.getCourse() != null){
 					if(overlap(scheduleSlot,slot)){
 						Course scheduleCourse = scheduleSlot.getCourse();
@@ -177,7 +193,7 @@ public class Constr {
 						}
 					}
 				}
-			}
+			
 		}
 		return true;
 	}
